@@ -6,18 +6,6 @@
 
 [node name="TestWorld" type="Spatial"]
 
-[node name="Particle2" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.08465, 2.31354, 4.11821 )
-
-[node name="Particle3" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.78079, 2.31354, 4.11821 )
-
-[node name="Particle5" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.07388, 2.31354, 2.05095 )
-
-[node name="Particle6" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.08465, 2.31354, 2.05095 )
-
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( 1, 0, 0, 0, 0.838652, 0.544668, 0, -0.544668, 0.838652, -1, 10.3466, 18.3813 )
 
@@ -33,3 +21,12 @@ shape = SubResource( 1 )
 width = 30.0
 height = 1.0
 depth = 30.0
+
+[node name="Particle" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.64662, 1.64946 )
+
+[node name="Particle2" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.35048, 2.64662, 0 )
+
+[node name="Particle3" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.64662, 0 )

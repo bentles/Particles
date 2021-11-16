@@ -36,9 +36,7 @@ func _resize_model():
 		size_state = percent
 		
 	var size = 1 + size_factor * size_state
-	self.scale.x = size;
-	self.scale.y = size;
-	self.scale.z = size;
+	# figure out how to scale properly
 
 func _expand():
 	_act(State.STATE_IDLE, State.STATE_EXPANDING)
@@ -46,7 +44,7 @@ func _expand():
 func _contract():
 	_act(State.STATE_EXPANDED, State.STATE_CONTRACTING)
 
-var rng = RandomNumberGenerator.new()
+# var rng = RandomNumberGenerator.new()
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass
@@ -70,6 +68,9 @@ func _process(delta):
 	_process_state(delta)
 	
 	_resize_model()
+	
+	
+	
 	# assume for now all particles are the same mass so i just pick a
 	# value for G*m1*m2
 	
@@ -78,11 +79,19 @@ func _process(delta):
 	
 	var overlapping = $InfluenceArea.get_overlapping_bodies()	
 	var totalInstAcc = Vector3.ZERO;
-	
+
 	for body in overlapping:
 		if body != self: #not myself lol
 			var bodylist = [body.global_transform.origin]
-				
+			if body.is_in_group("Muscle"):
+				bodylist = body.get_offsets()
+				for body3 in bodylist:
+					var rsq = self.global_transform.origin.distance_squared_to(body3)
+					var r3 = self.global_transform.origin.direction_to(body3)
+
+					var acc3 = r3 * (body.fmass * self.fmass)/(rsq)
+					totalInstAcc -= acc3 #repel the middle of the muscle
+
 			var biggestEffect = Vector3.ZERO
 			for body3 in bodylist:
 				var rsq = self.global_transform.origin.distance_squared_to(body3)
@@ -90,10 +99,9 @@ func _process(delta):
 				var acc3 = r3 * (gmm * body.fmass * self.fmass)/(rsq)
 				if acc3.length_squared() > biggestEffect.length_squared():
 					biggestEffect = acc3
-				
+
 			totalInstAcc += biggestEffect
 	self.add_central_force(totalInstAcc)
-	pass
 	
 
 
