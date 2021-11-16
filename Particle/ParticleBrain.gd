@@ -10,7 +10,7 @@ var neural_network = NeuralNetwork.new(2,3,4)
 # 0: rest, 1: expanding, 2: expanded, 3:contracting
 
 # rest and expanded states need cooldowns.
-
+	
 # fitness will be measured by distance from start point
 
 # want to lose as few particles as possible. so being alone is not gucci
