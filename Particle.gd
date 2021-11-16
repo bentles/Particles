@@ -21,14 +21,6 @@ func _process(delta):
 	for body in overlapping:
 		if body != self: #not myself lol
 			var bodylist = [body.global_transform.origin]
-			if body.is_in_group("Muscle"):
-				bodylist = body.get_offsets()
-				for body3 in bodylist:
-					var rsq = self.global_transform.origin.distance_squared_to(body3)
-					var r3 = self.global_transform.origin.direction_to(body3)
-					
-					var acc3 = r3 * (body.fmass * self.fmass)/(rsq)
-					totalInstAcc -= acc3 #repel the middle of the muscle
 				
 			var biggestEffect = Vector3.ZERO
 			for body3 in bodylist:
@@ -41,4 +33,6 @@ func _process(delta):
 			totalInstAcc += biggestEffect
 	self.add_central_force(totalInstAcc)
 	pass
+	
+
 
