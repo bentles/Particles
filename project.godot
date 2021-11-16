@@ -1,0 +1,29 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+[application]
+
+config/name="Particles"
+run/main_scene="res://TestWorld.tscn"
+config/icon="res://icon.png"
+
+[layer_names]
+
+3d_physics/layer_1="Particles"
+3d_physics/layer_2="MuscleParticles"
+3d_physics/layer_5="Environent"
+
+[physics]
+
+common/enable_pause_aware_picking=true
+
+[rendering]
+
+environment/default_environment="res://default_env.tres"
