@@ -2,12 +2,12 @@ extends RigidBody
 
 # Declare member variables here.
 var vel3 = Vector3.ZERO
-export var fmass = 1
+export var fmass = 1.4
 
 # maybe can make these asymmetric later if it makes things cooler
 const cooldown_seconds = 0.5
-var cooldown_elapsed_seconds = cooldown_seconds
-const action_seconds = 0.5
+var cooldown_elapsed_seconds = 0
+const action_seconds = 0.2
 var action_elapsed_seconds = action_seconds
 
 const size_factor = 0.25;
@@ -40,6 +40,7 @@ func _resize_model():
 	
 	$CollisionShape.shape.radius = size
 	$Body.radius = size
+	$InfluenceArea/CollisionShape.shape.radius = size
 
 func _expand():
 	_act(State.STATE_IDLE, State.STATE_EXPANDING)
@@ -47,10 +48,9 @@ func _expand():
 func _contract():
 	_act(State.STATE_EXPANDED, State.STATE_CONTRACTING)
 
-var rng = RandomNumberGenerator.new()
-# Called when the node enters the scene tree for the first time.
+const NN = preload("./ParticleBrain.gd")
+
 func _ready():
-	rng.randomize()
 	pass
 	
 func _process_state(delta):
@@ -65,54 +65,51 @@ func _process_state(delta):
 	cooldown_elapsed_seconds < cooldown_seconds:
 		cooldown_elapsed_seconds += delta
 
+func _physics_process(delta):
+	_process_state(delta)
+
+	var overlapping = $InfluenceArea.get_overlapping_bodies()
+	
+	var pos = self.global_transform.origin
+
+	var directions = [ \
+		Vector3(1,0,0), Vector3(-1,0,0), \
+		Vector3(0,1,0), Vector3(0,-1,0), \
+		Vector3(0,0,1), Vector3(0,0,-1), \
+	]
+	
+	# assume for now all particles are the same mass so i just pick a
+	# value for G*m1*m2	
+	
+	var gmm = 5.0
+	
+	var totalInstAcc = Vector3.ZERO;
+	
+	var nearby_particles = [ 0, 0, 0, 0, 0, 0 ]
+
+	for body in overlapping:
+		for i in range(6):
+			if body != self:
+				var body3 = body.global_transform.origin
+
+				var rsq = self.global_transform.origin.distance_squared_to(body3)
+				var r3 = self.global_transform.origin.direction_to(body3)
+				
+				var dot_prod = directions[i].dot(r3)
+				dot_prod = 0 if dot_prod < 0 else dot_prod
+				
+				nearby_particles[i] += dot_prod
+				
+				var acc3 = r3 * (gmm * body.fmass * self.fmass)/(rsq)
+
+				totalInstAcc += acc3
+	self.add_central_force(totalInstAcc)
+	
+
 var rand_time = 0;
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	
-	_process_state(delta)
-	
 	_resize_model()
-	
-	rand_time += delta;
-	if rand_time > 1:
-		rand_time = 0
-		var action = rng.randf()
-		if action < 0.2:
-			_expand()
-		elif action < 0.4:
-			_contract()
-	
-	# assume for now all particles are the same mass so i just pick a
-	# value for G*m1*m2
-	
-	
-	var gmm = 5.0
-	
-	var overlapping = $InfluenceArea.get_overlapping_bodies()	
-	var totalInstAcc = Vector3.ZERO;
-
-	for body in overlapping:
-		if body != self: #not myself lol
-			var bodylist = [body.global_transform.origin]
-			if body.is_in_group("Muscle"):
-				bodylist = body.get_offsets()
-				for body3 in bodylist:
-					var rsq = self.global_transform.origin.distance_squared_to(body3)
-					var r3 = self.global_transform.origin.direction_to(body3)
-
-					var acc3 = r3 * (body.fmass * self.fmass)/(rsq)
-					totalInstAcc -= acc3 #repel the middle of the muscle
-
-			var biggestEffect = Vector3.ZERO
-			for body3 in bodylist:
-				var rsq = self.global_transform.origin.distance_squared_to(body3)
-				var r3 = self.global_transform.origin.direction_to(body3)
-				var acc3 = r3 * (gmm * body.fmass * self.fmass)/(rsq)
-				if acc3.length_squared() > biggestEffect.length_squared():
-					biggestEffect = acc3
-
-			totalInstAcc += biggestEffect
-	self.add_central_force(totalInstAcc)
-	
 
 

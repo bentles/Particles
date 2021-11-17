@@ -1,7 +1,15 @@
+extends Node
+
 const NeuralNetwork = preload("../Neural Network/Brain.gd")
+var neural_network = NeuralNetwork.new(6,5,3)
+	
+func _physics_process(delta):
+	# produce an action for the particle to perform
+	# from the NNEt
+	# neural_network.predict()
+	pass
 
 
-var neural_network = NeuralNetwork.new(2,5,3)
 
 # ok i think each particle should know about the particles next to it
 # so maybe direction vectors to the particles in its sphere??
