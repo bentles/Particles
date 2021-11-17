@@ -10,7 +10,7 @@ var cooldown_elapsed_seconds = cooldown_seconds
 const action_seconds = 0.5
 var action_elapsed_seconds = action_seconds
 
-const size_factor = 0.5;
+const size_factor = 0.25;
 
 const State = { STATE_IDLE = 0, STATE_EXPANDING = 1, STATE_EXPANDED = 3, STATE_CONTRACTING = 2}
 
@@ -35,8 +35,11 @@ func _resize_model():
 	elif state == State.STATE_EXPANDING:
 		size_state = percent
 		
-	var size = 1 + size_factor * size_state
+	var size = 0.5 + size_factor * size_state
 	# figure out how to scale properly
+	
+	$CollisionShape.shape.radius = size
+	$Body.radius = size
 
 func _expand():
 	_act(State.STATE_IDLE, State.STATE_EXPANDING)
@@ -44,9 +47,10 @@ func _expand():
 func _contract():
 	_act(State.STATE_EXPANDED, State.STATE_CONTRACTING)
 
-# var rng = RandomNumberGenerator.new()
+var rng = RandomNumberGenerator.new()
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	rng.randomize()
 	pass
 	
 func _process_state(delta):
@@ -69,7 +73,14 @@ func _process(delta):
 	
 	_resize_model()
 	
-	
+	rand_time += delta;
+	if rand_time > 1:
+		rand_time = 0
+		var action = rng.randf()
+		if action < 0.2:
+			_expand()
+		elif action < 0.4:
+			_contract()
 	
 	# assume for now all particles are the same mass so i just pick a
 	# value for G*m1*m2

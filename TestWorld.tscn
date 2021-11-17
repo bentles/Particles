@@ -30,3 +30,9 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.35048, 2.64662, 0 )
 
 [node name="Particle3" parent="." instance=ExtResource( 1 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.64662, 0 )
+
+[node name="Particle4" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.21345, 1.64946 )
+
+[node name="Particle5" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.35048, 4.21345, 0 )
