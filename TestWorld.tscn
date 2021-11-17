@@ -7,7 +7,7 @@
 [node name="TestWorld" type="Spatial"]
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.838652, 0.544668, 0, -0.544668, 0.838652, -1, 10.3466, 18.3813 )
+transform = Transform( 1, 0, 0, 0, 0.838652, 0.544668, 0, -0.544668, 0.838652, -1, 13.8462, 16.0482 )
 
 [node name="StaticBody" type="StaticBody" parent="."]
 collision_layer = 16
@@ -36,3 +36,48 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.21345, 1.64946 )
 
 [node name="Particle5" parent="." instance=ExtResource( 1 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.35048, 4.21345, 0 )
+
+[node name="Particle6" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.02731, 1.64946 )
+
+[node name="Particle7" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.35048, 4.02731, 0 )
+
+[node name="Particle8" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.02731, 0 )
+
+[node name="Particle9" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.59414, 1.64946 )
+
+[node name="Particle10" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.35048, 5.59414, 0 )
+
+[node name="Particle11" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.07938, 2.64662, 1.64946 )
+
+[node name="Particle12" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.271097, 2.64662, 0 )
+
+[node name="Particle13" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.07938, 2.64662, 0 )
+
+[node name="Particle14" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.07938, 4.21345, 1.64946 )
+
+[node name="Particle15" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.271097, 4.21345, 0 )
+
+[node name="Particle16" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.07938, 4.02731, 1.64946 )
+
+[node name="Particle17" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.271097, 4.02731, 0 )
+
+[node name="Particle18" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.07938, 4.02731, 0 )
+
+[node name="Particle19" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.07938, 5.59414, 1.64946 )
+
+[node name="Particle20" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.271097, 5.59414, 0 )

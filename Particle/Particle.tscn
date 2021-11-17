@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [sub_resource type="PhysicsMaterial" id=5]
 
@@ -7,12 +7,12 @@ script/source = "extends RigidBody
 
 # Declare member variables here.
 var vel3 = Vector3.ZERO
-export var fmass = 1
+export var fmass = 1.4
 
 # maybe can make these asymmetric later if it makes things cooler
 const cooldown_seconds = 0.5
-var cooldown_elapsed_seconds = cooldown_seconds
-const action_seconds = 0.5
+var cooldown_elapsed_seconds = 0
+const action_seconds = 0.2
 var action_elapsed_seconds = action_seconds
 
 const size_factor = 0.25;
@@ -45,6 +45,7 @@ func _resize_model():
 	
 	$CollisionShape.shape.radius = size
 	$Body.radius = size
+	$InfluenceArea/CollisionShape.shape.radius = size
 
 func _expand():
 	_act(State.STATE_IDLE, State.STATE_EXPANDING)
@@ -79,7 +80,7 @@ func _process(delta):
 	_resize_model()
 	
 	rand_time += delta;
-	if rand_time > 1:
+	if rand_time > 0.2:
 		rand_time = 0
 		var action = rng.randf()
 		if action < 0.2:
@@ -127,13 +128,21 @@ func _process(delta):
 resource_local_to_scene = true
 radius = 0.5
 
+[sub_resource type="SpatialMaterial" id=7]
+flags_transparent = true
+albedo_color = Color( 0.517647, 0.913725, 0.67451, 1 )
+metallic = 1.0
+metallic_specular = 0.8
+
 [sub_resource type="SphereShape" id=3]
+resource_local_to_scene = true
 radius = 0.52
 
 [node name="Particle" type="RigidBody" groups=[
 "Particle",
 ]]
 collision_mask = 19
+mass = 0.6
 physics_material_override = SubResource( 5 )
 angular_damp = 0.5
 script = SubResource( 6 )
@@ -142,6 +151,7 @@ script = SubResource( 6 )
 shape = SubResource( 4 )
 
 [node name="Body" type="CSGSphere" parent="."]
+material_override = SubResource( 7 )
 radius = 0.5
 radial_segments = 14
 rings = 8
