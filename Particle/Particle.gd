@@ -16,7 +16,7 @@ var think_elapsed_seconds = think_seconds
 const size_factor = 0.25;
 
 # state
-const State = { STATE_IDLE = 0, STATE_EXPANDING = 1, STATE_EXPANDED = 3, STATE_CONTRACTING = 2}
+const State = { STATE_IDLE = 0, STATE_EXPANDING = 3, STATE_EXPANDED = 10, STATE_CONTRACTING = 7}
 var state = State.STATE_IDLE
 
 const NeuralNetwork = preload("../Neural Network/Brain.gd")
