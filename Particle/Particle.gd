@@ -2,7 +2,7 @@ extends RigidBody
 
 # Declare member variables here.
 var vel3 = Vector3.ZERO
-export var fmass = 0.8
+export var fmass = 1.9
 
 # maybe can make these asymmetric later if it makes things cooler
 const cooldown_seconds = 0.5
@@ -76,40 +76,22 @@ func _physics_process(delta):
 
 	var overlapping = $InfluenceArea.get_overlapping_bodies()
 	
-	var pos = self.global_transform.origin
-
-	var directions = [ \
-		Vector3(1,0,0), Vector3(-1,0,0), \
-		Vector3(0,1,0), Vector3(0,-1,0), \
-		Vector3(0,0,1), Vector3(0,0,-1), \
-	]
-	
 	# assume for now all particles are the same mass so i just pick a
 	# value for G*m1*m2	
 	
 	var gmm = 5.0
 	
 	var totalInstAcc = Vector3.ZERO;
-	
-	var nearby_particles = [ 0, 0, 0, 0, 0, 0 ]
 
 	for body in overlapping:
-		for i in range(6):
-			if body != self:
-				# calculate forces from nearby particles
-				var body3 = body.global_transform.origin
-				var rsq = self.global_transform.origin.distance_squared_to(body3)
-				var r3 = self.global_transform.origin.direction_to(body3)
-				var acc3 = r3 * (gmm * body.fmass * self.fmass)/(rsq)
-				totalInstAcc += acc3
-				
-				# read nearby particles 
-				# (hmm this info actually seems covered by the force produced)
-				# i will reuse this for state info mayyybe
-				#var dot_prod = directions[i].dot(r3)
-				#dot_prod = 0 if dot_prod < 0 else dot_prod
-				#nearby_particles[i] += dot_prod
-
+		if body != self:
+			# calculate forces from nearby particles
+			var body3 = body.global_transform.origin
+			var rsq = self.global_transform.origin.distance_squared_to(body3)
+			var r3 = self.global_transform.origin.direction_to(body3)
+			var acc3 = r3 * (gmm * body.fmass * self.fmass)/(rsq)
+			totalInstAcc += acc3
+			
 	self.add_central_force(totalInstAcc)
 	
 	think([totalInstAcc.x, totalInstAcc.y, totalInstAcc.z], delta)

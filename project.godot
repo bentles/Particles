@@ -14,6 +14,12 @@ config/name="Particles"
 run/main_scene="res://TestWorld.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+Params="*res://NEAT_code/params.gd"
+Innovations="*res://NEAT_code/innovations.gd"
+Utils="*res://NEAT_code/utils.gd"
+
 [layer_names]
 
 3d_physics/layer_1="Particles"

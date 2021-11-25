@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://Particle/Particle.gd" type="Script" id=1]
 
@@ -8,19 +8,13 @@
 resource_local_to_scene = true
 radius = 0.5
 
-[sub_resource type="SpatialMaterial" id=3]
-flags_transparent = true
-albedo_color = Color( 0.14902, 0.141176, 0.388235, 1 )
-metallic_specular = 0.8
-
 [sub_resource type="SphereShape" id=4]
 resource_local_to_scene = true
 radius = 0.52
 
-[node name="Particle" type="RigidBody" groups=[
-"Particle",
-]]
+[node name="Particle" type="RigidBody" groups=["Particle"]]
 collision_mask = 19
+mass = 0.8
 physics_material_override = SubResource( 1 )
 angular_damp = 0.8
 script = ExtResource( 1 )
@@ -29,7 +23,6 @@ script = ExtResource( 1 )
 shape = SubResource( 2 )
 
 [node name="Body" type="CSGSphere" parent="."]
-material_override = SubResource( 3 )
 radius = 0.5
 radial_segments = 14
 rings = 8

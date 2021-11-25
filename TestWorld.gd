@@ -15,13 +15,13 @@ var max_fitness = 0
 
 var generation = 0
 var organisms = []
-const GEN_SIZE = 8
+const GEN_SIZE = 15
 var current_organism
 var current_organism_index = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	for i in range(0, GEN_SIZE):
+	for i in range(GEN_SIZE):
 		organisms.push_front(Organism.instance())
 		
 	current_organism = organisms[0]
@@ -49,15 +49,14 @@ func _physics_process(delta):
 			pass
 			
 		add_child(current_organism)
-			
-		
-		
-	
+
+
 	var text = "fitness: " + str(current_organism.fitness)
 	text += "\nmax_fitness: " + str(max_fitness)
 	text += "\ntime: " + str(test_time_elapsed)
 	text += "\n#: " + str(current_organism_index) + " of " + str(GEN_SIZE)
 	text += "\ngen: " + str(generation)
+	text += "\nfps: " + str(Engine.get_frames_per_second())
 	$MarginContainer/RichTextLabel.text = text
 
 func roulette_select():
@@ -95,3 +94,4 @@ func create_next_generation():
 	
 	generation += 1
 	organisms = next_gen
+

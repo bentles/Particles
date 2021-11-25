@@ -14,6 +14,7 @@ var learning_rate = 1
 var mutation_rate = 0.1
 
 var sigmoid_ref: FuncRef
+var relu_ref: FuncRef
 var dsigmoid_ref: FuncRef
 var mutation_func_ref: FuncRef
 
@@ -21,6 +22,7 @@ var mutation_func_ref: FuncRef
 func _init(a, b = 1, c = 1):
 	randomize()
 	sigmoid_ref = funcref(self, 'sigmoid')
+	relu_ref = funcref(self, 'relu')
 	dsigmoid_ref = funcref(self, "dsigmoid")
 	mutation_func_ref = funcref(self, "mutation_func")
 	
@@ -60,7 +62,7 @@ func predict(input_array: Array) -> Array:
 	
 	var hidden = MatrixOperator.multiply(weights_ih, inputs)
 	hidden.add(bias_h)
-	hidden.map(sigmoid_ref)
+	hidden.map(relu_ref)
 	
 	var outputs = MatrixOperator.multiply(weights_ho, hidden)
 	outputs.add(bias_o)
@@ -123,6 +125,12 @@ func mutation_func(val):
 
 func sigmoid(x):
 	return 1 / (1 + exp(-x))
+
+# func softMax(x):
+# 	e^x / sum(e^x)
+
+func relu(x):
+	return max(x, 0)
 
 func dsigmoid(y):
 	return y * (1 - y)
