@@ -9,7 +9,7 @@ var fitness = 0
 
 func _init():
 	if brain == null:
-		brain = NeuralNetwork.new(3, 5, 3)
+		brain = NeuralNetwork.new(4, 8, 2)
 	
 # Called when the node enters the scene tree for the first time.
 func _ready():

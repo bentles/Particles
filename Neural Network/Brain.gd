@@ -18,9 +18,13 @@ var relu_ref: FuncRef
 var dsigmoid_ref: FuncRef
 var mutation_func_ref: FuncRef
 
+var rng: RandomNumberGenerator
+
 # CONSTRUCTORS
 func _init(a, b = 1, c = 1):
 	randomize()
+	rng = RandomNumberGenerator.new()
+	rng.randomize()
 	sigmoid_ref = funcref(self, 'sigmoid')
 	relu_ref = funcref(self, 'relu')
 	dsigmoid_ref = funcref(self, "dsigmoid")
@@ -70,44 +74,6 @@ func predict(input_array: Array) -> Array:
 	
 	return outputs.to_array()
 
-func train(input_array, target_array):
-	var inputs = Matrix.new(input_array)
-	
-	var hidden = MatrixOperator.multiply(weights_ih, inputs)
-	hidden.add(bias_h)
-	hidden.map(sigmoid_ref)
-	
-	var outputs = MatrixOperator.multiply(weights_ho, hidden)
-	outputs.add(bias_o)
-	outputs.map(sigmoid_ref)
-	
-	var targets = Matrix.new(target_array)
-	
-	var output_errors = MatrixOperator.subtract(targets, outputs)
-	
-	var gradients = MatrixOperator.map(outputs, dsigmoid_ref)
-	gradients.multiply(output_errors)
-	gradients.multiply(learning_rate)
-	
-	var hidden_T = MatrixOperator.transpose(hidden)
-	var weight_ho_deltas = MatrixOperator.multiply(gradients, hidden_T)
-	
-	weights_ho.add(weight_ho_deltas)
-	bias_o.add(gradients)
-	
-	var who_t = MatrixOperator.transpose(weights_ho)
-	var hidden_errors = MatrixOperator.multiply(who_t, output_errors)
-	
-	var hidden_gradients = MatrixOperator.map(hidden, dsigmoid_ref)
-	hidden_gradients.multiply(hidden_errors)
-	hidden_gradients.multiply(learning_rate)
-	
-	var inputs_T = MatrixOperator.transpose(inputs)
-	var weight_ih_deltas = MatrixOperator.multiply(hidden_gradients, inputs_T)
-	
-	weights_ih.add(weight_ih_deltas)
-	bias_h.add(hidden_gradients)
-
 func mutate():
 	weights_ih.map(mutation_func_ref)
 	weights_ho.map(mutation_func_ref)
@@ -119,7 +85,7 @@ func duplicate():
 
 func mutation_func(val):
 	if randf() < mutation_rate:
-		return val + rand_range(-0.1, 0.1)
+		return val + rng.randfn(0, 0.2)
 	else:
 		return val
 

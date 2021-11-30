@@ -2,10 +2,10 @@ extends RigidBody
 
 # Declare member variables here.
 var vel3 = Vector3.ZERO
-export var fmass = 1.9
+export var fmass = 1.4
 
 # maybe can make these asymmetric later if it makes things cooler
-const cooldown_seconds = 0.5
+const cooldown_seconds = 0.3
 var cooldown_elapsed_seconds = 0
 const action_seconds = 0.2
 var action_elapsed_seconds = action_seconds
@@ -13,7 +13,7 @@ var action_elapsed_seconds = action_seconds
 const think_seconds = 0.1
 var think_elapsed_seconds = think_seconds
 
-const size_factor = 0.25;
+const size_factor = 0.3;
 
 # state
 const State = { STATE_IDLE = 0, STATE_EXPANDING = 3, STATE_EXPANDED = 10, STATE_CONTRACTING = 7}
@@ -94,7 +94,7 @@ func _physics_process(delta):
 			
 	self.add_central_force(totalInstAcc)
 	
-	think([totalInstAcc.x, totalInstAcc.y, totalInstAcc.z], delta)
+	think([totalInstAcc.x, totalInstAcc.y, totalInstAcc.z, state], delta)
 
 #decide what action to perform (expand, contract or nothing)
 func think(inputs: Array, delta: float):
@@ -104,12 +104,9 @@ func think(inputs: Array, delta: float):
 		think_elapsed_seconds = 0
 		var outputs = brain.predict(inputs)
 		# biggest output wins
-		var biggest = max(max(outputs[0], outputs[1]), outputs[2])
-		if biggest == outputs[0]:
-			pass
-		elif biggest == outputs[1]:
+		if outputs[0] > 0.75 && outputs[0] > outputs[1]: 
 			_expand()
-		else:
+		if outputs[1] > 0.75:
 			_contract()
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
