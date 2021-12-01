@@ -9,14 +9,14 @@ var fitness = 0
 
 func _init():
 	if brain == null:
-		brain = NeuralNetwork.new(4, 8, 2)
+		brain = NeuralNetwork.new(7, 12, 2)
 	
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	_create_particles()
 	pass # Replace with function body.
 	
-func _physics_process(delta):
+func _physics_process(_delta):
 	calc_fitness()
 
 func calc_fitness():
@@ -29,7 +29,16 @@ func _create_particles():
 	particles = []
 	for x in range(-1, 1):
 		for y in range(1, 3):
-			for z in range(-1, 1):
+			for z in range(-1,1):
+				var p = Particle.instance()
+				p.brain = brain # might need some kind of instancing thing here
+				p.translate(Vector3(x, y, z))
+				particles.push_front(p)
+				add_child(p)
+				
+	for x in range(1, 10):
+		for y in range(1, 2):
+			for z in range(-1,0):
 				var p = Particle.instance()
 				p.brain = brain # might need some kind of instancing thing here
 				p.translate(Vector3(x, y, z))

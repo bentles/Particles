@@ -9,8 +9,9 @@ const NeuralNetwork = preload("Neural Network/Brain.gd")
 const Organism = preload("res://Organism/Organism.tscn")
 
 var test_time_elapsed = 0
-const TEST_TIME = 8 # secs to prove yourselfs
+const TEST_TIME = 8 # secs to prove yourself
 var max_fitness = 0
+var max_fitness_brain
 var ave_fitness = 0
 
 var generation = 0
@@ -36,7 +37,9 @@ func _physics_process(delta):
 		
 	if test_time_elapsed >= TEST_TIME:
 		test_time_elapsed = 0
-		max_fitness = max(current_organism.fitness, max_fitness)
+		if current_organism.fitness > max_fitness:
+			max_fitness = current_organism.fitness
+			max_fitness_brain = current_organism.brain.duplicate()
 		remove_child(current_organism)
 		
 		#on to the next one
@@ -52,12 +55,15 @@ func _physics_process(delta):
 			
 		add_child(current_organism)
 
+	
+func _process(delta):
 	var text = "fitness: " + str(current_organism.fitness)
 	text += "\nmax_fitness: " + str(max_fitness)
 	text += "\nave_fitness: " + str(ave_fitness)
 	text += "\ntime: " + str(test_time_elapsed)
-	text += "\n#: " + str(current_organism_index) + " of " + str(GEN_SIZE)
+	text += "\n#: " + str(current_organism_index + 1) + " of " + str(GEN_SIZE)
 	text += "\ngen: " + str(generation)
+	text += "\nlast gen ave fitness: " + str(ave_fitness)
 	text += "\nfps: " + str(Engine.get_frames_per_second())
 	$MarginContainer/RichTextLabel.text = text
 
@@ -97,13 +103,17 @@ func calculate_fitness():
 func create_next_generation():
 	var next_gen = []
 	calculate_fitness()
-	for i in range(GEN_SIZE):
-		var org = tourn_select()
-		var brain = org.brain.duplicate()
-		brain.mutate()
-		var new_org = Organism.instance()
-		new_org.brain = brain
-		next_gen.push_front(new_org)
+	while next_gen.size() < GEN_SIZE:
+		var b1 = tourn_select().brain.duplicate()
+		var b2 = tourn_select().brain.duplicate()
+		b1.crossover_mutate(b2)
+		var new1 = Organism.instance()
+		var new2 = Organism.instance()
+		new1.brain = b1
+		new2.brain = b2
+		
+		next_gen.push_back(new1)
+		next_gen.push_back(new2)
 	
 	for org in organisms:
 		org.queue_free()

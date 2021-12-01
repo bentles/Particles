@@ -11,7 +11,7 @@ var bias_h: Matrix
 var bias_o: Matrix
 
 var learning_rate = 1
-var mutation_rate = 0.1
+var mutation_rate = 0.01
 
 var sigmoid_ref: FuncRef
 var relu_ref: FuncRef
@@ -73,12 +73,50 @@ func predict(input_array: Array) -> Array:
 	outputs.map(sigmoid_ref)
 	
 	return outputs.to_array()
+	
 
 func mutate():
 	weights_ih.map(mutation_func_ref)
 	weights_ho.map(mutation_func_ref)
 	bias_h.map(mutation_func_ref)
 	bias_o.map(mutation_func_ref)
+	
+func crossover_mutate(brain):
+	var ih1 = weights_ih.to_array()
+	var ih2 = brain.weights_ih.to_array()
+	var ho1 = weights_ho.to_array()
+	var ho2 = brain.weights_ho.to_array()
+	var h1 = bias_h.to_array()
+	var h2 = brain.bias_h.to_array()
+	var o1 = bias_o.to_array()
+	var o2 = brain.bias_o.to_array()
+	
+	for i in range(ih1.size()):
+		_swap(i, ih1, ih2)
+	for i in range(ho1.size()):
+		_swap(i, ho1, ho2)
+	for i in range(h1.size()):
+		_swap(i, h1, h2)
+	for i in range(o1.size()):
+		_swap(i, o1, o2)
+		
+	weights_ih.from_array(ih1)
+	brain.weights_ih.from_array(ih2)
+	weights_ho.from_array(ho1)
+	brain.weights_ho.from_array(ho2)
+	bias_h.from_array(h1)
+	brain.bias_h.from_array(h2)
+	bias_o.from_array(o1)
+	brain.bias_o.from_array(o2)
+	
+	mutate()
+	brain.mutate()
+	
+func _swap(i, a, b):
+	if (randf() < 0.5):
+			var tmp = a[i]
+			a[i] = b[i]
+			b[i] = tmp
 
 func duplicate():
 	return get_script().new(self)

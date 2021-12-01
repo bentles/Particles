@@ -99,6 +99,11 @@ func to_array() -> Array:
 			res.append(data[i][j])
 	return res
 
+func from_array(arr: Array):
+	for i in range(rows):
+		for j in range(cols):
+			data[i][j] = arr[j + i * cols]
+
 # duplicate the matrix
 func duplicate():
 	return get_script().new(self)
