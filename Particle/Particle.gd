@@ -27,8 +27,9 @@ func _act(from_state, to_state):
 		state = to_state
 		action_elapsed_seconds = 0
 		cooldown_elapsed_seconds = 0
-		
-func _resize_model():
+
+var total = 0
+func _resize_model(delta):
 	var percent = action_elapsed_seconds / action_seconds
 	var size_state = 0
 	
@@ -43,16 +44,22 @@ func _resize_model():
 		
 	var size = 0.5 + size_factor * size_state
 	# figure out how to scale properly
-	
-	$CollisionShape.shape.radius = size
-	$Body.radius = size
+	total += delta
+	#if (total < 3):
+	#	$CollisionShape.shape.radius = total
+	$Particles.scale.x = size
+	$Particles.scale.y = size
+	$Particles.scale.z = size
 	$InfluenceArea/CollisionShape.shape.radius = size
 
 func _expand():
 	_act(State.STATE_IDLE, State.STATE_EXPANDING)
+	$CollisionShape.shape.radius = 0.75
+	
 
 func _contract():
 	_act(State.STATE_EXPANDED, State.STATE_CONTRACTING)
+	$CollisionShape.shape.radius = 0.5
 
 func _ready():
 	assert(brain != null)
@@ -73,6 +80,7 @@ func _process_state(delta):
 
 func _physics_process(delta):
 	_process_state(delta)
+	_resize_model(delta)
 
 	var overlapping = $InfluenceArea.get_overlapping_bodies()
 	
@@ -121,6 +129,6 @@ func think(inputs: Array, delta: float):
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	_resize_model()
+	pass
 
 

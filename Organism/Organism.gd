@@ -27,18 +27,9 @@ func calc_fitness():
 
 func _create_particles():
 	particles = []
-	for x in range(-1, 1):
-		for y in range(1, 3):
-			for z in range(-1,1):
-				var p = Particle.instance()
-				p.brain = brain # might need some kind of instancing thing here
-				p.translate(Vector3(x, y, z))
-				particles.push_front(p)
-				add_child(p)
-				
-	for x in range(1, 10):
-		for y in range(1, 2):
-			for z in range(-1,0):
+	for x in range(-1, 2):
+		for y in range(1, 8):
+			for z in range(-1,2):
 				var p = Particle.instance()
 				p.brain = brain # might need some kind of instancing thing here
 				p.translate(Vector3(x, y, z))

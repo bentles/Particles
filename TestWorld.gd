@@ -23,7 +23,7 @@ var current_organism_index = 0
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	for i in range(GEN_SIZE):
-		organisms.push_front(Organism.instance())
+		organisms.push_front(Organism.instance().duplicate())
 		
 	current_organism = organisms[0]
 	add_child(current_organism)
