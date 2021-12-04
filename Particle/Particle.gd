@@ -52,6 +52,16 @@ func _resize_model(delta):
 	$Particles.scale.z = size
 	$InfluenceArea/CollisionShape.shape.radius = size
 
+var colors = [Color.cadetblue, Color.webpurple, Color.tomato, Color.crimson, Color.darkred, Color.black]
+
+func set_collision_layer(layer):
+	self.set_collision_layer_bit(layer, true)
+	self.set_collision_mask_bit(layer, true)
+	$InfluenceArea.set_collision_layer_bit(layer, true)
+	$InfluenceArea.set_collision_mask_bit(layer, true)
+	#$Particles.draw_pass_1.material.albedo_color = colors[(layer - 2) % colors.size()]
+	pass
+
 func _expand():
 	_act(State.STATE_IDLE, State.STATE_EXPANDING)
 	$CollisionShape.shape.radius = 0.75
@@ -63,7 +73,7 @@ func _contract():
 
 func _ready():
 	assert(brain != null)
-	pass
+	randomize()
 	
 func _process_state(delta):
 	# TODO: might need to think about order here

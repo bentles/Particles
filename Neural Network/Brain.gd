@@ -11,7 +11,7 @@ var bias_h: Matrix
 var bias_o: Matrix
 
 var learning_rate = 1
-var mutation_rate = 0.01
+var mutation_rate = 0.1
 
 var sigmoid_ref: FuncRef
 var relu_ref: FuncRef
@@ -113,7 +113,7 @@ func crossover_mutate(brain):
 	brain.mutate()
 	
 func _swap(i, a, b):
-	if (randf() < 0.5):
+	if (randf() < 0):
 			var tmp = a[i]
 			a[i] = b[i]
 			b[i] = tmp

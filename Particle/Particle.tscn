@@ -1,9 +1,8 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Particle/Particle.gd" type="Script" id=1]
 
-[sub_resource type="PhysicsMaterial" id=1]
-rough = true
+[sub_resource type="PhysicsMaterial" id=14]
 
 [sub_resource type="SphereShape" id=2]
 resource_local_to_scene = true
@@ -13,18 +12,29 @@ radius = 0.5
 resource_local_to_scene = true
 radius = 0.52
 
-[sub_resource type="ShaderMaterial" id=5]
+[sub_resource type="ShaderMaterial" id=13]
+
+[sub_resource type="OpenSimplexNoise" id=11]
+
+[sub_resource type="NoiseTexture" id=12]
+noise = SubResource( 11 )
+
+[sub_resource type="SpatialMaterial" id=10]
+vertex_color_use_as_albedo = true
+albedo_color = Color( 0.635294, 0.243137, 0.243137, 1 )
+roughness_texture = SubResource( 12 )
 
 [sub_resource type="SphereMesh" id=6]
+material = SubResource( 10 )
 
 [node name="Particle" type="RigidBody" groups=["Particle"]]
-collision_mask = 19
+collision_layer = 0
 mass = 0.2
-physics_material_override = SubResource( 1 )
+physics_material_override = SubResource( 14 )
 linear_damp = 0.1
 angular_damp = 0.3
 script = ExtResource( 1 )
-fmass = 0.35
+fmass = 0.3
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 2 )
@@ -32,7 +42,7 @@ shape = SubResource( 2 )
 [node name="InfluenceArea" type="Area" parent="."]
 transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0 )
 collision_layer = 0
-collision_mask = 3
+collision_mask = 2
 
 [node name="CollisionShape" type="CollisionShape" parent="InfluenceArea"]
 transform = Transform( 5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0 )
@@ -41,5 +51,5 @@ shape = SubResource( 4 )
 [node name="Particles" type="Particles" parent="."]
 transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0 )
 amount = 1
-process_material = SubResource( 5 )
+process_material = SubResource( 13 )
 draw_pass_1 = SubResource( 6 )

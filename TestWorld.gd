@@ -13,61 +13,80 @@ const TEST_TIME = 8 # secs to prove yourself
 var max_fitness = 0
 var max_fitness_brain
 var ave_fitness = 0
+var tourn_perc = 0.5
+var parallel_organisms = 1
 
 var generation = 0
 var organisms = []
-const GEN_SIZE = 20
-var current_organism
+const GEN_SIZE = 48
+var current_organisms = []
 var current_organism_index = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	assert(parallel_organisms < 11)
+	assert(GEN_SIZE % parallel_organisms == 0)
+	
 	for i in range(GEN_SIZE):
 		organisms.push_front(Organism.instance().duplicate())
 		
-	current_organism = organisms[0]
-	add_child(current_organism)
+	current_organisms = _get_current_organisms(0, parallel_organisms, organisms)	
+	_add_current_organisms()
 	
 	randomize()
 	
 	pass # Replace with function body.
+	
+func _add_current_organisms():
+	for i in range(current_organisms.size()):
+		current_organisms[i].particle_layer_offset = i
+		add_child(current_organisms[i])
+	
+func _get_current_organisms(start, count, all):
+	var org = []
+	for i in range(start, start + count):
+		org.push_back(all[i])
+	return org
 
 func _physics_process(delta):
 	test_time_elapsed += delta
 		
 	if test_time_elapsed >= TEST_TIME:
 		test_time_elapsed = 0
-		if current_organism.fitness > max_fitness:
-			max_fitness = current_organism.fitness
-			max_fitness_brain = current_organism.brain.duplicate()
-		remove_child(current_organism)
+		
+		for current_organism in current_organisms:
+			if current_organism.fitness > max_fitness:
+				max_fitness = current_organism.fitness
+				max_fitness_brain = current_organism.brain.duplicate()
+			remove_child(current_organism)
 		
 		#on to the next one
-		current_organism_index += 1
+		current_organism_index += parallel_organisms
 		
 		if (current_organism_index < GEN_SIZE):
-			current_organism = organisms[current_organism_index]
+			current_organisms = _get_current_organisms(current_organism_index, parallel_organisms, organisms)
 		else: 
 			current_organism_index = 0
 			create_next_generation()
-			current_organism = organisms[current_organism_index]
+			current_organisms = _get_current_organisms(current_organism_index, parallel_organisms, organisms)
 			pass
-			
-		add_child(current_organism)
+		
+		_add_current_organisms()
 
 	
 func _process(delta):
-	var text = "fitness: " + str(current_organism.fitness)
+	var text = ""
+	for org in current_organisms:
+		text += "\nfitness: " + str(org.fitness)
 	text += "\nmax_fitness: " + str(max_fitness)
 	text += "\nave_fitness: " + str(ave_fitness)
 	text += "\ntime: " + str(test_time_elapsed)
 	text += "\n#: " + str(current_organism_index + 1) + " of " + str(GEN_SIZE)
 	text += "\ngen: " + str(generation)
-	text += "\nlast gen ave fitness: " + str(ave_fitness)
 	text += "\nfps: " + str(Engine.get_frames_per_second())
 	$MarginContainer/RichTextLabel.text = text
 
-var tourn_perc = 0.5;
+
 func tourn_select():
 	var tourn_size = GEN_SIZE * tourn_perc
 	var best_fitness = 0
@@ -107,8 +126,8 @@ func create_next_generation():
 		var b1 = tourn_select().brain.duplicate()
 		var b2 = tourn_select().brain.duplicate()
 		b1.crossover_mutate(b2)
-		var new1 = Organism.instance()
-		var new2 = Organism.instance()
+		var new1 = Organism.instance().duplicate()
+		var new2 = Organism.instance().duplicate()
 		new1.brain = b1
 		new2.brain = b2
 		

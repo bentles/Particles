@@ -16,9 +16,7 @@ config/icon="res://icon.png"
 
 [layer_names]
 
-3d_physics/layer_1="Particles"
-3d_physics/layer_2="MuscleParticles"
-3d_physics/layer_5="Environent"
+3d_physics/layer_1="Environent"
 
 [physics]
 
