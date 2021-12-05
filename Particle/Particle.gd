@@ -2,17 +2,19 @@ extends RigidBody
 
 # Declare member variables here.
 var vel3 = Vector3.ZERO
-export var fmass = 0.6
+export var density = 1
+var fmass = 0.8
 
 # maybe can make these asymmetric later if it makes things cooler
-const cooldown_seconds = 0.3
+const cooldown_seconds = 0.2
 var cooldown_elapsed_seconds = 0
-const action_seconds = 0.2
+const action_seconds = 0.1
 var action_elapsed_seconds = action_seconds
 
 const think_seconds = 0.1
 var think_elapsed_seconds = think_seconds
 
+var original_size = 0.5;
 const size_factor = 0.3;
 
 # state
@@ -42,7 +44,7 @@ func _resize_model(delta):
 	elif state == State.STATE_EXPANDING:
 		size_state = percent
 		
-	var size = 0.5 + size_factor * size_state
+	var size = original_size + size_factor * size_state
 	# figure out how to scale properly
 	total += delta
 	#if (total < 3):
@@ -50,28 +52,33 @@ func _resize_model(delta):
 	$Particles.scale.x = size
 	$Particles.scale.y = size
 	$Particles.scale.z = size
-	$InfluenceArea/CollisionShape.shape.radius = size
+	
 
-var colors = [Color.cadetblue, Color.webpurple, Color.tomato, Color.crimson, Color.darkred, Color.black]
+var colors = [Color.cadetblue, Color.webpurple, Color.tomato, Color.crimson, Color.darkred, Color.darkgreen]
 
 func set_collision_layer(layer):
 	self.set_collision_layer_bit(layer, true)
 	self.set_collision_mask_bit(layer, true)
 	$InfluenceArea.set_collision_layer_bit(layer, true)
 	$InfluenceArea.set_collision_mask_bit(layer, true)
-	#$Particles.draw_pass_1.material.albedo_color = colors[(layer - 2) % colors.size()]
+	var color: Color = colors[(layer - 2) % colors.size()]
+	$Particles.draw_pass_1.material.albedo_color = color
 	pass
 
 func _expand():
 	_act(State.STATE_IDLE, State.STATE_EXPANDING)
-	$CollisionShape.shape.radius = 0.75
-	
+	$CollisionShape.shape.radius = original_size + size_factor
+	$InfluenceArea/CollisionShape.shape.radius = original_size + size_factor
+	fmass = (density * pow(size_factor + original_size, 3) * PI * 4) / 3
 
 func _contract():
 	_act(State.STATE_EXPANDED, State.STATE_CONTRACTING)
-	$CollisionShape.shape.radius = 0.5
+	$CollisionShape.shape.radius = original_size
+	$InfluenceArea/CollisionShape.shape.radius = original_size
+	fmass = (density * pow(original_size, 3) * PI * 4) / 3
 
 func _ready():
+	fmass = (density * pow(original_size, 3) * PI * 4) / 3
 	assert(brain != null)
 	randomize()
 	
@@ -97,7 +104,7 @@ func _physics_process(delta):
 	# assume for now all particles are the same mass so i just pick a
 	# value for G*m1*m2	
 	
-	var gmm = 5.0
+	var g = 5.0
 	
 	var totalInstAcc = Vector3.ZERO;
 	var totalActivation = Vector3.ZERO;
@@ -107,9 +114,11 @@ func _physics_process(delta):
 			if body != self:
 				# calculate forces from nearby particles
 				var body3 = body.global_transform.origin
-				var rsq = self.global_transform.origin.distance_squared_to(body3)
+				# enforce 0.5^2 as the closest 2 particles can be
+				var rsq = max(0.25, self.global_transform.origin.distance_squared_to(body3))
 				var r3 = self.global_transform.origin.direction_to(body3)
-				var acc3 = r3 * (gmm * body.fmass * self.fmass)/(rsq)
+				
+				var acc3 = r3 * ((g * body.fmass * self.fmass)/(rsq)) 
 				totalInstAcc += acc3
 				
 				var act3 = r3.normalized()

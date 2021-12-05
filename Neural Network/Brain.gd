@@ -113,7 +113,7 @@ func crossover_mutate(brain):
 	brain.mutate()
 	
 func _swap(i, a, b):
-	if (randf() < 0):
+	if (randf() < 0.5):
 			var tmp = a[i]
 			a[i] = b[i]
 			b[i] = tmp

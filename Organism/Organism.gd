@@ -1,4 +1,4 @@
-extends Node
+extends Spatial
 
 const NeuralNetwork = preload("res://Neural Network/Brain.gd")
 const Particle = preload("res://Particle/Particle.tscn")
@@ -23,7 +23,7 @@ func _physics_process(_delta):
 func calc_fitness():
 	fitness = 0
 	for p in particles:
-		fitness += Vector3.ZERO.distance_squared_to(p.global_transform.origin)
+		fitness +=  transform.origin.distance_squared_to(p.global_transform.origin)
 	if is_nan(fitness):
 		pass
 
@@ -31,7 +31,7 @@ func calc_fitness():
 func _create_particles():
 	particles = []
 	for x in range(-1, 1):
-		for y in range(1, 3):
+		for y in range(4, 6):
 			for z in range(-1, 1):
 				var p = Particle.instance().duplicate()
 				p.set_collision_layer(particle_layer_offset + 2)

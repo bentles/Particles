@@ -14,6 +14,10 @@ config/name="Particles"
 run/main_scene="res://TestWorld.tscn"
 config/icon="res://icon.png"
 
+[display]
+
+window/size/fullscreen=true
+
 [layer_names]
 
 3d_physics/layer_1="Environent"

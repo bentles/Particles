@@ -13,13 +13,13 @@ const TEST_TIME = 8 # secs to prove yourself
 var max_fitness = 0
 var max_fitness_brain
 var ave_fitness = 0
-var tourn_perc = 0.5
-var parallel_organisms = 1
+var tourn_perc = 0.7
+var parallel_organisms = 6
 
 var generation = 0
 var organisms = []
-const GEN_SIZE = 48
-var current_organisms = []
+const GEN_SIZE = 42
+var current_organisms: Array = []
 var current_organism_index = 0
 
 # Called when the node enters the scene tree for the first time.
@@ -38,8 +38,11 @@ func _ready():
 	pass # Replace with function body.
 	
 func _add_current_organisms():
+	var spread = 6
+	var offset = parallel_organisms / 2
 	for i in range(current_organisms.size()):
 		current_organisms[i].particle_layer_offset = i
+		current_organisms[i].translate(Vector3(i * spread - offset * spread, 0, 0))
 		add_child(current_organisms[i])
 	
 func _get_current_organisms(start, count, all):
@@ -125,7 +128,9 @@ func create_next_generation():
 	while next_gen.size() < GEN_SIZE:
 		var b1 = tourn_select().brain.duplicate()
 		var b2 = tourn_select().brain.duplicate()
-		b1.crossover_mutate(b2)
+		# b1.crossover_mutate(b2)
+		b1.mutate()
+		b2.mutate()
 		var new1 = Organism.instance().duplicate()
 		var new2 = Organism.instance().duplicate()
 		new1.brain = b1
