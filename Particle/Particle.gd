@@ -2,12 +2,12 @@ extends RigidBody
 
 # Declare member variables here.
 var vel3 = Vector3.ZERO
-var fmass = 3
+var fmass = 3.4
 
 # maybe can make these asymmetric later if it makes things cooler
-const cooldown_seconds = 0.4
+const cooldown_seconds = 0.13
 var cooldown_elapsed_seconds = 0
-const action_seconds = 0.4
+const action_seconds = 0.13
 var action_elapsed_seconds = action_seconds
 
 const think_seconds = 0.1
@@ -39,7 +39,6 @@ func set_collision_layer(layer):
 	$InfluenceArea.set_collision_mask_bit(layer, true)
 	var color: Color = colors[(layer - 2) % colors.size()]
 	$Particles.draw_pass_1.material.albedo_color = color
-	pass
 	
 func _set_size(size):
 	$CollisionShape.shape.radius = size
@@ -61,8 +60,6 @@ func _act(from_state, to_state):
 		action_elapsed_seconds = 0
 		cooldown_elapsed_seconds = 0
 
-
-	
 func _process_state(delta):
 	# TODO: might need to think about order here
 	if state == State.STATE_EXPANDING || state == State.STATE_CONTRACTING:
@@ -75,7 +72,6 @@ func _process_state(delta):
 	if (state == State.STATE_IDLE || state == State.STATE_EXPANDED) && \
 	cooldown_elapsed_seconds < cooldown_seconds:
 		cooldown_elapsed_seconds += delta
-		
 
 func _physics_process(delta):
 	_process_state(delta)

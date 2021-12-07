@@ -13,12 +13,12 @@ const TEST_TIME = 8 # secs to prove yourself
 var max_fitness = 0
 var max_fitness_brain
 var ave_fitness = 0
-var tourn_perc = 0.70
+var tourn_perc = 0.60
 var parallel_organisms = 10
 
 var generation = 0
 var organisms = []
-const GEN_SIZE = 60
+const GEN_SIZE = 30
 var current_organisms: Array = []
 var current_organism_index = 0
 
