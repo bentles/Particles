@@ -2,7 +2,7 @@ extends RigidBody
 
 # Declare member variables here.
 var vel3 = Vector3.ZERO
-export var density = 1
+export var density = 3
 var fmass = 0.8
 
 # maybe can make these asymmetric later if it makes things cooler
@@ -110,20 +110,19 @@ func _physics_process(delta):
 	var totalActivation = Vector3.ZERO;
 	
 	for body in overlapping:
-		for i in range(6):
-			if body != self:
-				# calculate forces from nearby particles
-				var body3 = body.global_transform.origin
-				# enforce 0.5^2 as the closest 2 particles can be
-				var rsq = max(0.25, self.global_transform.origin.distance_squared_to(body3))
-				var r3 = self.global_transform.origin.direction_to(body3)
-				
-				var acc3 = r3 * ((g * body.fmass * self.fmass)/(rsq)) 
-				totalInstAcc += acc3
-				
-				var act3 = r3.normalized()
-				act3 = act3 * body.state
-				totalActivation += act3
+		if body != self:
+			# calculate forces from nearby particles
+			var body3 = body.global_transform.origin
+			# enforce 0.5^2 as the closest 2 particles can be
+			var rsq = max(0.5, self.global_transform.origin.distance_squared_to(body3))
+			var r3 = self.global_transform.origin.direction_to(body3)
+			
+			var acc3 = r3 * ((g * body.fmass * self.fmass)/(rsq)) 
+			totalInstAcc += acc3
+			
+			var act3 = r3.normalized()
+			act3 = act3 * body.state
+			totalActivation += act3
 				
 	self.add_central_force(totalInstAcc)
 	

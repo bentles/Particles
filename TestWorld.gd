@@ -13,12 +13,12 @@ const TEST_TIME = 8 # secs to prove yourself
 var max_fitness = 0
 var max_fitness_brain
 var ave_fitness = 0
-var tourn_perc = 0.7
-var parallel_organisms = 6
+var tourn_perc = 0.70
+var parallel_organisms = 10
 
 var generation = 0
 var organisms = []
-const GEN_SIZE = 42
+const GEN_SIZE = 60
 var current_organisms: Array = []
 var current_organism_index = 0
 
@@ -28,7 +28,8 @@ func _ready():
 	assert(GEN_SIZE % parallel_organisms == 0)
 	
 	for i in range(GEN_SIZE):
-		organisms.push_front(Organism.instance().duplicate())
+		var organism = Organism.instance().duplicate()
+		organisms.push_front(organism)
 		
 	current_organisms = _get_current_organisms(0, parallel_organisms, organisms)	
 	_add_current_organisms()
@@ -39,10 +40,10 @@ func _ready():
 	
 func _add_current_organisms():
 	var spread = 6
-	var offset = parallel_organisms / 2
-	for i in range(current_organisms.size()):
+	var offset = parallel_organisms / 2.0
+	for i in range(parallel_organisms):
 		current_organisms[i].particle_layer_offset = i
-		current_organisms[i].translate(Vector3(i * spread - offset * spread, 0, 0))
+		current_organisms[i].translate(Vector3((i - offset + 0.5) * spread, 0, 0))
 		add_child(current_organisms[i])
 	
 func _get_current_organisms(start, count, all):

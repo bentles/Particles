@@ -12,8 +12,8 @@ rough = true
 code = "shader_type spatial;
 render_mode unshaded;
 
-uniform float scale = 8.0;
-uniform float radius = 1.0;
+uniform float scale = 100.0;
+uniform float radius = 100.0;
 uniform float offset = 0.268;
 uniform float power = 1.0;
 uniform bool hide_incomplete = false;
@@ -120,3 +120,8 @@ margin_right = 1001.0
 margin_bottom = 579.0
 text = "asdf
 "
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 80, -40 )
+light_energy = 0.7
+shadow_enabled = true
