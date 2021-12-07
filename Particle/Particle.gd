@@ -2,13 +2,12 @@ extends RigidBody
 
 # Declare member variables here.
 var vel3 = Vector3.ZERO
-export var density = 3
-var fmass = 0.8
+var fmass = 3
 
 # maybe can make these asymmetric later if it makes things cooler
-const cooldown_seconds = 0.2
+const cooldown_seconds = 0.4
 var cooldown_elapsed_seconds = 0
-const action_seconds = 0.1
+const action_seconds = 0.4
 var action_elapsed_seconds = action_seconds
 
 const think_seconds = 0.1
@@ -24,35 +23,12 @@ var state = State.STATE_IDLE
 const NeuralNetwork = preload("../Neural Network/Brain.gd")
 var brain: NeuralNetwork;
 
-func _act(from_state, to_state):
-	if state == from_state && cooldown_elapsed_seconds >= cooldown_seconds:
-		state = to_state
-		action_elapsed_seconds = 0
-		cooldown_elapsed_seconds = 0
+func _ready():
+	assert(brain != null)
+	randomize()
 
-var total = 0
-func _resize_model(delta):
-	var percent = action_elapsed_seconds / action_seconds
-	var size_state = 0
-	
-	if state == State.STATE_EXPANDED:
-		size_state = 1
-	elif state == State.STATE_IDLE:
-		size_state = 0
-	elif state == State.STATE_CONTRACTING:
-		size_state = (1 - percent)
-	elif state == State.STATE_EXPANDING:
-		size_state = percent
-		
-	var size = original_size + size_factor * size_state
-	# figure out how to scale properly
-	total += delta
-	#if (total < 3):
-	#	$CollisionShape.shape.radius = total
-	$Particles.scale.x = size
-	$Particles.scale.y = size
-	$Particles.scale.z = size
-	
+func get_size() -> float:
+	return $CollisionShape.shape.radius
 
 var colors = [Color.cadetblue, Color.webpurple, Color.tomato, Color.crimson, Color.darkred, Color.darkgreen]
 
@@ -64,23 +40,28 @@ func set_collision_layer(layer):
 	var color: Color = colors[(layer - 2) % colors.size()]
 	$Particles.draw_pass_1.material.albedo_color = color
 	pass
+	
+func _set_size(size):
+	$CollisionShape.shape.radius = size
+	$InfluenceArea/CollisionShape.shape.radius = size
+	$Particles.scale.x = size
+	$Particles.scale.y = size
+	$Particles.scale.z = size
 
 func _expand():
 	_act(State.STATE_IDLE, State.STATE_EXPANDING)
-	$CollisionShape.shape.radius = original_size + size_factor
-	$InfluenceArea/CollisionShape.shape.radius = original_size + size_factor
-	fmass = (density * pow(size_factor + original_size, 3) * PI * 4) / 3
 
 func _contract():
 	_act(State.STATE_EXPANDED, State.STATE_CONTRACTING)
-	$CollisionShape.shape.radius = original_size
-	$InfluenceArea/CollisionShape.shape.radius = original_size
-	fmass = (density * pow(original_size, 3) * PI * 4) / 3
+	
+func _act(from_state, to_state):
+	if state == from_state && cooldown_elapsed_seconds >= cooldown_seconds:
+		_set_size(original_size + size_factor / 2.0)
+		state = to_state
+		action_elapsed_seconds = 0
+		cooldown_elapsed_seconds = 0
 
-func _ready():
-	fmass = (density * pow(original_size, 3) * PI * 4) / 3
-	assert(brain != null)
-	randomize()
+
 	
 func _process_state(delta):
 	# TODO: might need to think about order here
@@ -89,6 +70,7 @@ func _process_state(delta):
 		if action_elapsed_seconds >= action_seconds:
 			action_elapsed_seconds = action_seconds
 			state = State.STATE_IDLE if state == State.STATE_CONTRACTING else State.STATE_EXPANDED
+			_set_size(original_size if state == State.STATE_IDLE else original_size + size_factor)
 		return
 	if (state == State.STATE_IDLE || state == State.STATE_EXPANDED) && \
 	cooldown_elapsed_seconds < cooldown_seconds:
@@ -97,13 +79,8 @@ func _process_state(delta):
 
 func _physics_process(delta):
 	_process_state(delta)
-	_resize_model(delta)
 
-	var overlapping = $InfluenceArea.get_overlapping_bodies()
-	
-	# assume for now all particles are the same mass so i just pick a
-	# value for G*m1*m2	
-	
+	var overlapping = $InfluenceArea.get_overlapping_bodies()	
 	var g = 5.0
 	
 	var totalInstAcc = Vector3.ZERO;
@@ -113,8 +90,13 @@ func _physics_process(delta):
 		if body != self:
 			# calculate forces from nearby particles
 			var body3 = body.global_transform.origin
+			
+			# make the forces independent of particle size  
+			var distance_offset = 2 * original_size - get_size() - body.get_size()
+			var distance = self.global_transform.origin.distance_to(body3)
+			
 			# enforce 0.5^2 as the closest 2 particles can be
-			var rsq = max(0.5, self.global_transform.origin.distance_squared_to(body3))
+			var rsq = max(0.25, pow(distance + distance_offset, 2))
 			var r3 = self.global_transform.origin.direction_to(body3)
 			
 			var acc3 = r3 * ((g * body.fmass * self.fmass)/(rsq)) 
