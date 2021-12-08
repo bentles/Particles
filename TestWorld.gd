@@ -9,12 +9,12 @@ const NeuralNetwork = preload("Neural Network/Brain.gd")
 const Organism = preload("res://Organism/Organism.tscn")
 
 var test_time_elapsed = 0
-const TEST_TIME = 8 # secs to prove yourself
+const TEST_TIME = 10 # secs to prove yourself
 var max_fitness = 0
 var max_fitness_brain
 var ave_fitness = 0
 var tourn_perc = 0.60
-var parallel_organisms = 10
+var parallel_organisms = 15
 
 var generation = 0
 var organisms = []
@@ -24,7 +24,6 @@ var current_organism_index = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	assert(parallel_organisms < 11)
 	assert(GEN_SIZE % parallel_organisms == 0)
 	
 	for i in range(GEN_SIZE):
