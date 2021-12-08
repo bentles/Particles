@@ -11,7 +11,7 @@ var _direction = Vector3(0.0, 0.0, 0.0)
 var _velocity = Vector3(0.0, 0.0, 0.0)
 var _acceleration = 30
 var _deceleration = -10
-var _vel_multiplier = 4
+var _vel_multiplier = 8
 
 # Keyboard state
 var _w = false
@@ -20,6 +20,8 @@ var _a = false
 var _d = false
 var _q = false
 var _e = false
+var _shift = false
+var _ctrl = false
 
 func _input(event):
 	# Receives mouse motion
@@ -51,6 +53,10 @@ func _input(event):
 				_q = event.pressed
 			KEY_E:
 				_e = event.pressed
+			KEY_SHIFT:
+				_shift = event.pressed
+			KEY_CONTROL:
+				_ctrl = event.pressed
 
 # Updates mouselook and movement every frame
 func _process(delta):
@@ -60,6 +66,9 @@ func _process(delta):
 # Updates camera movement
 func _update_movement(delta):
 	# Computes desired direction from key states
+	
+	var updown = _shift as float - _ctrl as float
+	
 	_direction = Vector3(_d as float - _a as float, 
 						 _e as float - _q as float,
 						 _s as float - _w as float)
@@ -75,6 +84,7 @@ func _update_movement(delta):
 		_velocity = Vector3.ZERO
 	else:
 		# Clamps speed to stay within maximum value (_vel_multiplier)
+		_velocity.y = updown * _acceleration * _vel_multiplier * delta
 		_velocity.x = clamp(_velocity.x + offset.x, -_vel_multiplier, _vel_multiplier)
 		_velocity.y = clamp(_velocity.y + offset.y, -_vel_multiplier, _vel_multiplier)
 		_velocity.z = clamp(_velocity.z + offset.z, -_vel_multiplier, _vel_multiplier)
