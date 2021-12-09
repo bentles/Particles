@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Camera.gd" type="Script" id=1]
 [ext_resource path="res://TestWorld.gd" type="Script" id=2]
@@ -11,82 +11,8 @@ map_width = 10
 map_depth = 10
 map_data = PoolRealArray( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
 
-[sub_resource type="Shader" id=2]
-code = "shader_type spatial;
-render_mode unshaded;
-
-uniform float scale = 100.0;
-uniform float radius = 100.0;
-uniform float offset = 0.268;
-uniform float power = 1.0;
-uniform bool hide_incomplete = false;
-uniform vec4 color : hint_color = vec4(0.0, 0.6, 1.0, 1.0);
-
-float is_in_hex(float hex_radius, vec2 local_point) {
-	const vec2 AXIS[3] = {
-		vec2(sqrt(3)*0.5, 0.5),
-		vec2(0.0, 1.0),
-		vec2(-sqrt(3)*0.5, 0.5)
-	};
-	float max_r = 0.0;
-	for (int i = 0; i < 3; i++) {
-		float r = dot(local_point, AXIS[i]);
-		r /= (sqrt(3)*0.5*hex_radius);
-		max_r = max(max_r, abs(r));
-	}
-	return max_r;
-}
-
-float snap_to_center(float local_coord, float hex_radius) {
-	return float(floor((local_coord+hex_radius)/(2.0*hex_radius)))*2.0*hex_radius;
-}
-
-vec2 calculate_local_center(vec2 uv, float r) {
-	float y_coord_1 = snap_to_center(uv.y, r);
-	float x_coord_1 = snap_to_center(uv.x, r*sqrt(3));
-	vec2 point_1 = vec2(x_coord_1, y_coord_1);
-	
-	float x_coord_2 = snap_to_center(uv.x - r*sqrt(3), r*sqrt(3));
-	float y_coord_2 = snap_to_center(uv.y - r, r);
-	vec2 point_2 = vec2(x_coord_2, y_coord_2) + vec2(r*sqrt(3), r);
-	
-	if (length(uv - point_1) < length(uv - point_2)) {
-		return point_1;
-	} else {
-		return point_2;
-	}
-}
-
-void fragment() {
-	vec2 uv = (UV - vec2(0.5, 0.5)) * scale;
-	float r = (radius * sqrt(3) + offset)/2.0;
-	vec2 local_center = calculate_local_center(uv, r);
-	vec2 local_coords = uv - local_center;
-	
-	if (hide_incomplete && (
-			abs(local_center.x) > scale/2.0 - radius ||
-			abs(local_center.y) > scale/2.0 - radius*sqrt(3)
-		)
-	) {
-		 ALPHA = 0.0;
-	} else if (is_in_hex(radius, local_coords) <= 1.0) {
-		float rad = is_in_hex(radius, local_coords);
-		rad = pow(rad, power);
-		ALBEDO = color.rgb;
-		ALPHA = rad;
-	} else {
-		ALPHA = 0.0;
-	}
-}"
-
-[sub_resource type="ShaderMaterial" id=3]
-shader = SubResource( 2 )
-shader_param/scale = 8.0
-shader_param/radius = 1.0
-shader_param/offset = 0.268
-shader_param/power = 1.0
-shader_param/hide_incomplete = false
-shader_param/color = Color( 0, 0.6, 1, 1 )
+[sub_resource type="SpatialMaterial" id=6]
+albedo_color = Color( 0.494118, 0.145098, 0.827451, 1 )
 
 [node name="TestWorld" type="Spatial"]
 script = ExtResource( 2 )
@@ -100,14 +26,12 @@ collision_mask = 0
 physics_material_override = SubResource( 4 )
 
 [node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
-transform = Transform( 40, 0, 0, 0, 0.5, 0, 0, 0, 40, 0, 0, 0 )
+transform = Transform( 40, 0, 0, 0, 1, 0, 0, 0, 40, 0, 0.5, 0 )
 shape = SubResource( 5 )
 
 [node name="CSGBox" type="CSGBox" parent="StaticBody"]
-material_override = SubResource( 3 )
-width = 400.0
-height = 1.0
-depth = 400.0
+transform = Transform( 100, 0, 0, 0, 0.5, 0, 0, 0, 100, 0, 0, 0 )
+material_override = SubResource( 6 )
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 margin_left = 20.0
@@ -126,5 +50,6 @@ text = "asdf
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 80, -40 )
+layers = 17
 light_energy = 0.7
 shadow_enabled = true

@@ -1,10 +1,14 @@
 extends RigidBody
 
-# Declare member variables here.
+# physical properties:
 var vel3 = Vector3.ZERO
-var fmass = 3.4
+export var fmass = 3.4
+export var is_dead = false
+var age = 0
 
-# maybe can make these asymmetric later if it makes things cooler
+# action timers and state:
+var spawn_time = 0
+const spawn_cooldown = 0.5
 const cooldown_seconds = 0.13
 var cooldown_elapsed_seconds = 0
 const action_seconds = 0.13
@@ -13,18 +17,21 @@ var action_elapsed_seconds = action_seconds
 const think_seconds = 0.1
 var think_elapsed_seconds = think_seconds
 
-var original_size = 0.5;
-const size_factor = 0.3;
+var original_size = 0.5
+const size_factor = 0.3
 
-# state
 const State = { STATE_IDLE = 0, STATE_EXPANDING = 3, STATE_CONTRACTING = 6, STATE_EXPANDED = 9 }
 var state = State.STATE_IDLE
 
-const NeuralNetwork = preload("../Neural Network/Brain.gd")
-var brain: NeuralNetwork;
+# parent-given properties:
+const NeuralNetwork = preload("res://Neural Network/Brain.gd")
+var brain: NeuralNetwork
+var spawn_brain: NeuralNetwork
+var parent
 
 func _ready():
 	assert(brain != null)
+	assert(spawn_brain != null)
 	randomize()
 
 func get_size() -> float:
@@ -61,6 +68,8 @@ func _act(from_state, to_state):
 		cooldown_elapsed_seconds = 0
 
 func _process_state(delta):
+	age += delta
+	spawn_time += delta
 	# TODO: might need to think about order here
 	if state == State.STATE_EXPANDING || state == State.STATE_CONTRACTING:
 		action_elapsed_seconds += delta
@@ -74,6 +83,9 @@ func _process_state(delta):
 		cooldown_elapsed_seconds += delta
 
 func _physics_process(delta):
+	if is_dead:
+		return
+
 	_process_state(delta)
 
 	var overlapping = $InfluenceArea.get_overlapping_bodies()	
@@ -105,13 +117,15 @@ func _physics_process(delta):
 	self.add_central_force(totalInstAcc)
 	
 	think([
-		state, 
+		state,
 		totalInstAcc.x, totalInstAcc.y, totalInstAcc.z, 
 		totalActivation.x, totalActivation.y, totalActivation.z
+	], [
+		age, parent.hp
 	], delta)
 
 #decide what action to perform (expand, contract or nothing)
-func think(inputs: Array, delta: float):
+func think(inputs: Array, sb_inputs: Array, delta: float):
 	if think_elapsed_seconds < think_seconds:
 		think_elapsed_seconds += delta
 	else:
@@ -122,6 +136,18 @@ func think(inputs: Array, delta: float):
 			_expand()
 		if outputs[1] > 0.75:
 			_contract()
+			
+		var spawn_outputs = spawn_brain.predict(sb_inputs)
+		
+		# spawn new particle if this fires
+		if spawn_outputs[0] > 0.75 && spawn_time > spawn_cooldown:
+			parent.spawn_at_child(self, spawn_outputs[1] - 0.5, spawn_outputs[2] - 0.5, spawn_outputs[3] - 0.5)
+			spawn_time = 0
+			
+		
+			
+func kill():
+	is_dead = true
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):

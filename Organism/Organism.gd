@@ -2,58 +2,78 @@ extends Spatial
 
 const NeuralNetwork = preload("res://Neural Network/Brain.gd")
 const Particle = preload("res://Particle/Particle.tscn")
+
 var particles = []
+export var hp: float = 50
 var brain: NeuralNetwork
+var spawn_brain: NeuralNetwork
 var particle_layer_offset = 0
+
 var relative_fitness = 0
 var fitness = 0
+var age = 0
 
 func _init():
 	if brain == null:
 		brain = NeuralNetwork.new(7, 12, 2)
+	if spawn_brain == null:
+		spawn_brain = NeuralNetwork.new(2, 4, 4)
 	
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	_create_particles()
 	pass # Replace with function body.
 	
-func _physics_process(_delta):
-	calc_fitness()
+func _physics_process(delta):
+	if hp <= 0:
+		for p in particles:
+			p.kill()
+	else:
+		age += delta
+		calc_fitness()
 
 func calc_fitness():
+	# move far
 	fitness = 0
 	for p in particles:
+		# fitness += p.global_transform.origin.y
 		fitness += transform.origin.distance_squared_to(p.global_transform.origin)
+		
 	fitness /= particles.size()
+	
+	# bonuses
+	#fitness += particles.size() * 10 # use particles
+	fitness += age * 10 # live longer 
+	
 	if is_nan(fitness):
 		pass
 
 
 func _create_particles():
-	# TODO: delete this line this is a dumb experiment
-	particle_layer_offset = 0
-	
 	particles = []
-	for x in range(-1, 1):
+	for x in range(-1, 0):
 		for y in range(4, 5):
 			for z in range(-1, 1):
-				var p = Particle.instance().duplicate()
-				p.set_collision_layer(particle_layer_offset + 2)
-				p.brain = brain # might need some kind of instancing thing here
-				p.translate(Vector3(x, y, z))
-				particles.push_front(p)
-				add_child(p)
+				spawn_particle(x, y, z)
 				
-	for x in range(-1, 1):
-		for y in range(5, 6):
-			for z in range(-1, 0):
-				var p = Particle.instance().duplicate()
-				p.set_collision_layer(particle_layer_offset + 2)
-				p.brain = brain # might need some kind of instancing thing here
-				p.translate(Vector3(x, y, z + 0.5))
-				particles.push_front(p)
-				add_child(p)
-				
+func spawn_at_child(particle, x, y , z):
+	var pos = particle.transform.origin
+	
+	spawn_particle(pos.x + x,
+	 pos.y + y,
+	 pos.z + z)
+
+func spawn_particle(x, y, z):
+	var p = Particle.instance().duplicate()
+	p.set_collision_layer(particle_layer_offset + 2)
+	p.brain = brain # might need some kind of instancing thing here
+	p.spawn_brain = spawn_brain
+	p.parent = self
+	p.translate(Vector3(x, y, z))
+	particles.push_front(p)
+	add_child(p)
+	hp -= 1
+
 func queue_free():
 	for p in particles:
 		p.queue_free()

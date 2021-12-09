@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Particle/Particle.gd" type="Script" id=1]
 [ext_resource path="res://Particle/6056-normal.jpg" type="Texture" id=2]
@@ -15,8 +15,11 @@ radius = 0.5
 resource_local_to_scene = true
 radius = 0.52
 
+[sub_resource type="Shader" id=18]
+
 [sub_resource type="ShaderMaterial" id=13]
 resource_local_to_scene = true
+shader = SubResource( 18 )
 
 [sub_resource type="SpatialMaterial" id=16]
 resource_local_to_scene = true
