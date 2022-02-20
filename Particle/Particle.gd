@@ -2,9 +2,10 @@ extends RigidBody
 
 # physical properties:
 var vel3 = Vector3.ZERO
-export var fmass = 3.4
+export var fmass = 3.6
 export var is_dead = false
 var age = 0
+var gen = 1
 
 # action timers and state:
 var spawn_time = 0
@@ -35,20 +36,19 @@ func _ready():
 	randomize()
 
 func get_size() -> float:
-	return $CollisionShape.shape.radius
+	return 0.5 #$CollisionShape.shape.radius
 
-var colors = [Color.cadetblue, Color.webpurple, Color.tomato, Color.crimson, Color.darkred, Color.darkgreen]
-
+func set_material(material):
+	$Particles.draw_pass_1.material = material
+	
 func set_collision_layer(layer):
 	self.set_collision_layer_bit(layer, true)
 	self.set_collision_mask_bit(layer, true)
 	$InfluenceArea.set_collision_layer_bit(layer, true)
 	$InfluenceArea.set_collision_mask_bit(layer, true)
-	var color: Color = colors[(layer - 2) % colors.size()]
-	$Particles.draw_pass_1.material.albedo_color = color
 	
 func _set_size(size):
-	$CollisionShape.shape.radius = size
+	#$CollisionShape.shape.radius = size
 	$InfluenceArea/CollisionShape.shape.radius = size
 	$Particles.scale.x = size
 	$Particles.scale.y = size
@@ -113,16 +113,15 @@ func _physics_process(delta):
 			var act3 = r3.normalized()
 			act3 = act3 * body.state
 			totalActivation += act3
-				
+
 	self.add_central_force(totalInstAcc)
 	
-	think([
-		state,
+	think(
+	[   state,
 		totalInstAcc.x, totalInstAcc.y, totalInstAcc.z, 
-		totalActivation.x, totalActivation.y, totalActivation.z
-	], [
-		age, parent.hp
-	], delta)
+		totalActivation.x, totalActivation.y, totalActivation.z ], 
+	[ age, parent.hp, gen ],
+	delta)
 
 #decide what action to perform (expand, contract or nothing)
 func think(inputs: Array, sb_inputs: Array, delta: float):
@@ -140,9 +139,12 @@ func think(inputs: Array, sb_inputs: Array, delta: float):
 		var spawn_outputs = spawn_brain.predict(sb_inputs)
 		
 		# spawn new particle if this fires
-		if spawn_outputs[0] > 0.75 && spawn_time > spawn_cooldown:
-			parent.spawn_at_child(self, spawn_outputs[1] - 0.5, spawn_outputs[2] - 0.5, spawn_outputs[3] - 0.5)
-			spawn_time = 0
+		#if spawn_outputs[0] > 0.75 && spawn_time > spawn_cooldown:
+		#	parent.spawn_at_child(self, 
+		#	(spawn_outputs[1] - 0.5) / 3,
+		#	(spawn_outputs[2] - 0.5) / 3,
+		#	(spawn_outputs[3] - 0.5) / 3, gen + 1)
+		#	spawn_time = 0
 			
 		
 			

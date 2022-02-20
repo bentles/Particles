@@ -9,7 +9,7 @@ const NeuralNetwork = preload("res://Neural Network/Brain.gd")
 const Organism = preload("res://Organism/Organism.tscn")
 
 var test_time_elapsed = 0
-const TEST_TIME = 15 # secs to prove yourself
+const TEST_TIME = 8 # secs to prove yourself
 var max_fitness = 0
 var max_fitness_brain
 var max_fitness_spawn_brain
@@ -42,7 +42,7 @@ func _add_current_organisms():
 	var spread = 6
 	var offset = parallel_organisms / 2.0
 	for i in range(parallel_organisms):
-		current_organisms[i].particle_layer_offset = i
+		current_organisms[i].set_particle_layer_offset(i)
 		current_organisms[i].translate(Vector3((i - offset + 0.5) * spread, 0, 0))
 		add_child(current_organisms[i])
 	

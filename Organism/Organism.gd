@@ -4,9 +4,10 @@ const NeuralNetwork = preload("res://Neural Network/Brain.gd")
 const Particle = preload("res://Particle/Particle.tscn")
 
 var particles = []
-export var hp: float = 50
+export var hp: float = 10
 var brain: NeuralNetwork
 var spawn_brain: NeuralNetwork
+var material: Material
 var particle_layer_offset = 0
 
 var relative_fitness = 0
@@ -14,11 +15,21 @@ var fitness = 0
 var age = 0
 
 func _init():
+	material = SpatialMaterial.new()
+	material.set_local_to_scene(true)
+	var texture = ImageTexture.new()
+	var image = Image.new()
+	image.load("res://Particle/6056-normal.jpg")
+	texture.create_from_image(image)
+
+	material.albedo_texture = texture
+	
 	if brain == null:
 		brain = NeuralNetwork.new(7, 12, 2)
 	if spawn_brain == null:
-		spawn_brain = NeuralNetwork.new(2, 4, 4)
-	
+		spawn_brain = NeuralNetwork.new(3, 6, 4)
+		
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	_create_particles()
@@ -48,28 +59,37 @@ func calc_fitness():
 	if is_nan(fitness):
 		pass
 
+func set_particle_layer_offset(i):
+	particle_layer_offset = i
+	var colors = [Color.cadetblue, Color.webpurple, Color.tomato, Color.crimson, Color.darkred, Color.darkgreen]
+	var color: Color = colors[particle_layer_offset % colors.size()]
+	# material.albedo_color = color
 
 func _create_particles():
 	particles = []
-	for x in range(-1, 0):
-		for y in range(4, 5):
+	for x in range(-1, 1):
+		for y in range(4, 6):
 			for z in range(-1, 1):
 				spawn_particle(x, y, z)
 				
-func spawn_at_child(particle, x, y , z):
+func spawn_at_child(particle, x, y , z, gen):
 	var pos = particle.transform.origin
 	
 	spawn_particle(pos.x + x,
 	 pos.y + y,
-	 pos.z + z)
+	 pos.z + z, 
+	 gen)
 
-func spawn_particle(x, y, z):
+
+func spawn_particle(x, y, z, gen = 1):
 	var p = Particle.instance().duplicate()
+	p.set_material(material)
 	p.set_collision_layer(particle_layer_offset + 2)
 	p.brain = brain # might need some kind of instancing thing here
 	p.spawn_brain = spawn_brain
 	p.parent = self
 	p.translate(Vector3(x, y, z))
+	p.gen = gen
 	particles.push_front(p)
 	add_child(p)
 	hp -= 1
