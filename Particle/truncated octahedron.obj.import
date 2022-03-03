@@ -1,0 +1,20 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/truncated octahedron.obj-7a229e7cf121d2d0a05ab200f9cd791b.mesh"
+
+[deps]
+
+files=[ "res://.import/truncated octahedron.obj-7a229e7cf121d2d0a05ab200f9cd791b.mesh" ]
+
+source_file="res://Particle/truncated octahedron.obj"
+dest_files=[ "res://.import/truncated octahedron.obj-7a229e7cf121d2d0a05ab200f9cd791b.mesh", "res://.import/truncated octahedron.obj-7a229e7cf121d2d0a05ab200f9cd791b.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+octahedral_compression=true
+optimize_mesh_flags=4286

@@ -8,18 +8,18 @@ extends Spatial
 const NeuralNetwork = preload("res://Neural Network/Brain.gd")
 const Organism = preload("res://Organism/Organism.tscn")
 
+const TEST_TIME = 12 # secs to prove yourself
 var test_time_elapsed = 0
-const TEST_TIME = 8 # secs to prove yourself
 var max_fitness = 0
 var max_fitness_brain
 var max_fitness_spawn_brain
 var ave_fitness = 0
 var tourn_perc = 0.4
-var parallel_organisms = 1
+var parallel_organisms = 4
 
 var generation = 0
 var organisms = []
-const GEN_SIZE = 15
+const GEN_SIZE = 20
 var current_organisms: Array = []
 var current_organism_index = 0
 
@@ -29,9 +29,11 @@ func _ready():
 	
 	for i in range(GEN_SIZE):
 		var organism = Organism.instance().duplicate()
+		organism.set_target($Target)
 		organisms.push_front(organism)
 		
-	current_organisms = _get_current_organisms(0, parallel_organisms, organisms)	
+	current_organisms = _get_current_organisms(0, parallel_organisms, organisms)
+	_move_target()
 	_add_current_organisms()
 	
 	randomize()
@@ -39,7 +41,7 @@ func _ready():
 	pass # Replace with function body.
 	
 func _add_current_organisms():
-	var spread = 6
+	var spread = 1
 	var offset = parallel_organisms / 2.0
 	for i in range(parallel_organisms):
 		current_organisms[i].set_particle_layer_offset(i)
@@ -51,6 +53,13 @@ func _get_current_organisms(start, count, all):
 	for i in range(start, start + count):
 		org.push_back(all[i])
 	return org
+	
+func _move_target():
+	var rand = rand_range(0, 2 * PI)
+	
+	$Target.translation.x = 15 * cos(rand)
+	$Target.translation.z = 15 * sin(rand)
+
 
 func _physics_process(delta):
 	test_time_elapsed += delta
@@ -75,6 +84,8 @@ func _physics_process(delta):
 			remove_child(current_organism)
 		
 		#on to the next one
+		_move_target()
+		
 		current_organism_index += parallel_organisms
 		
 		if (current_organism_index < GEN_SIZE):
@@ -152,6 +163,8 @@ func create_next_generation():
 		var new1 = Organism.instance().duplicate()
 		var new2 = Organism.instance().duplicate()
 		
+		new1.set_target($Target)
+		new2.set_target($Target)
 		new1.brain = b1
 		new2.brain = b2
 		new1.spawn_brain = sb1

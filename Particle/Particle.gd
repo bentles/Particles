@@ -2,10 +2,11 @@ extends RigidBody
 
 # physical properties:
 var vel3 = Vector3.ZERO
-export var fmass = 3.6
+export var fmass = 3.5
 export var is_dead = false
 var age = 0
 var gen = 1
+var target: Spatial
 
 # action timers and state:
 var spawn_time = 0
@@ -36,10 +37,15 @@ func _ready():
 	randomize()
 
 func get_size() -> float:
-	return 0.5 #$CollisionShape.shape.radius
+	var a = $CollisionShape
+	return $CollisionShape.scale.x
 
 func set_material(material):
-	$Particles.draw_pass_1.material = material
+	var a = $Particles.draw_pass_1
+	#$Particles.draw_pass_1.material = material
+	
+func set_target(t: Spatial):
+	target = t
 	
 func set_collision_layer(layer):
 	self.set_collision_layer_bit(layer, true)
@@ -48,8 +54,12 @@ func set_collision_layer(layer):
 	$InfluenceArea.set_collision_mask_bit(layer, true)
 	
 func _set_size(size):
-	#$CollisionShape.shape.radius = size
-	$InfluenceArea/CollisionShape.shape.radius = size
+	$InfluenceArea.scale.x = size
+	$InfluenceArea.scale.y = size
+	$InfluenceArea.scale.z = size
+	$CollisionShape.scale.x = size
+	$CollisionShape.scale.y = size
+	$CollisionShape.scale.z = size
 	$Particles.scale.x = size
 	$Particles.scale.y = size
 	$Particles.scale.z = size
@@ -70,6 +80,7 @@ func _act(from_state, to_state):
 func _process_state(delta):
 	age += delta
 	spawn_time += delta
+	
 	# TODO: might need to think about order here
 	if state == State.STATE_EXPANDING || state == State.STATE_CONTRACTING:
 		action_elapsed_seconds += delta
@@ -88,11 +99,12 @@ func _physics_process(delta):
 
 	_process_state(delta)
 
-	var overlapping = $InfluenceArea.get_overlapping_bodies()	
+	var overlapping = $InfluenceArea.get_overlapping_bodies()
 	var g = 5.0
 	
-	var totalInstAcc = Vector3.ZERO;
-	var totalActivation = Vector3.ZERO;
+	var totalInstAcc = Vector3.ZERO
+	var totalActivation = Vector3.ZERO
+	var direction = Vector3.ZERO
 	
 	for body in overlapping:
 		if body != self:
@@ -102,6 +114,8 @@ func _physics_process(delta):
 			# make the forces independent of particle size  
 			var distance_offset = 2 * original_size - get_size() - body.get_size()
 			var distance = self.global_transform.origin.distance_to(body3)
+			
+			direction = target.global_transform.origin - self.global_transform.origin
 			
 			# enforce 0.5^2 as the closest 2 particles can be
 			var rsq = max(0.25, pow(distance + distance_offset, 2))
@@ -118,9 +132,12 @@ func _physics_process(delta):
 	
 	think(
 	[   state,
+		direction.x, direction.y, direction.z,
 		totalInstAcc.x, totalInstAcc.y, totalInstAcc.z, 
 		totalActivation.x, totalActivation.y, totalActivation.z ], 
-	[ age, parent.hp, gen ],
+	[   state,
+		direction.x, direction.y, direction.z,
+		age, parent.hp, gen ],
 	delta)
 
 #decide what action to perform (expand, contract or nothing)
@@ -145,8 +162,6 @@ func think(inputs: Array, sb_inputs: Array, delta: float):
 		#	(spawn_outputs[2] - 0.5) / 3,
 		#	(spawn_outputs[3] - 0.5) / 3, gen + 1)
 		#	spawn_time = 0
-			
-		
 			
 func kill():
 	is_dead = true
