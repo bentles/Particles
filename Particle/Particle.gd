@@ -19,6 +19,8 @@ var action_elapsed_seconds = action_seconds
 const think_seconds = 0.1
 var think_elapsed_seconds = think_seconds
 
+var shared_thoughts = [0,0,0]
+
 var original_size = 0.5
 const size_factor = 0.3
 
@@ -106,8 +108,13 @@ func _physics_process(delta):
 	var totalActivation = Vector3.ZERO
 	var direction = Vector3.ZERO
 	
+	var shared_thoughts_input = [0,0,0]
 	for body in overlapping:
 		if body != self:
+			#get shared thoughts
+			for n in 3:
+				shared_thoughts_input[n] += body.shared_thoughts[n]
+				
 			# calculate forces from nearby particles
 			var body3 = body.global_transform.origin
 			
@@ -116,6 +123,7 @@ func _physics_process(delta):
 			var distance = self.global_transform.origin.distance_to(body3)
 			
 			direction = target.global_transform.origin - self.global_transform.origin
+			
 			
 			# enforce 0.5^2 as the closest 2 particles can be
 			var rsq = max(0.25, pow(distance + distance_offset, 2))
@@ -132,9 +140,10 @@ func _physics_process(delta):
 	
 	think(
 	[   state,
+		shared_thoughts_input[0], shared_thoughts_input[1], shared_thoughts_input[2],
 		direction.x, direction.y, direction.z,
 		totalInstAcc.x, totalInstAcc.y, totalInstAcc.z, 
-		totalActivation.x, totalActivation.y, totalActivation.z ], 
+		 ], 
 	[   state,
 		direction.x, direction.y, direction.z,
 		age, parent.hp, gen ],
@@ -148,10 +157,12 @@ func think(inputs: Array, sb_inputs: Array, delta: float):
 		think_elapsed_seconds = 0
 		var outputs = brain.predict(inputs)
 		# biggest output wins
-		if outputs[0] > 0.75 && outputs[0] > outputs[1]: 
+		if outputs[0] > 0.75:
 			_expand()
-		if outputs[1] > 0.75:
+		if outputs[0] < 0.25:
 			_contract()
+			
+		shared_thoughts = outputs.slice(1, 3, 1, true)
 			
 		var spawn_outputs = spawn_brain.predict(sb_inputs)
 		

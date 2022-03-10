@@ -4,6 +4,7 @@ const NeuralNetwork = preload("res://Neural Network/Brain.gd")
 const Particle = preload("res://Particle/Particle.tscn")
 
 var particles = []
+var max_hp = 40
 export var hp: float = 40
 var brain: NeuralNetwork
 var spawn_brain: NeuralNetwork
@@ -11,6 +12,7 @@ var target: Spatial
 var material: Material
 var particle_layer_offset = 0
 
+var total_fitness = 0
 var relative_fitness = 0
 var fitness = 1
 var age = 0
@@ -26,7 +28,7 @@ func _init():
 	material.albedo_texture = texture
 	
 	if brain == null:
-		brain = NeuralNetwork.new(10, 20, 2)
+		brain = NeuralNetwork.new(10, 9, 4)
 	if spawn_brain == null:
 		spawn_brain = NeuralNetwork.new(7, 6, 4)
 		
@@ -43,13 +45,17 @@ func _physics_process(delta):
 	else:
 		age += delta
 		calc_fitness()
+		
+func record_fitness():
+	total_fitness += fitness
 
 func calc_fitness():
 	# move far
 	fitness = 0
 	for p in particles:
 		# fitness += p.global_transform.origin.y
-		fitness += 1 / p.global_transform.origin.distance_squared_to(target.global_transform.origin)
+		if (!p.global_transform.origin.distance_to(target.global_transform.origin) > 20):
+			fitness += 20 / (p.global_transform.origin.distance_to(target.global_transform.origin))
 		
 	fitness /= particles.size()
 	
@@ -69,10 +75,16 @@ func set_particle_layer_offset(i):
 func _create_particles():
 	particles = []
 	for x in range(-1, 1):
-		for y in range(2, 4):
+		for y in range(2, 5):
 			for z in range(-1, 1):
 				spawn_particle(x, y, z)
-				
+
+func respawn():
+	hp = max_hp
+	for p in particles:
+		p.queue_free()
+	_create_particles()
+
 func spawn_at_child(particle, x, y , z, gen):
 	var pos = particle.transform.origin
 	
@@ -89,8 +101,8 @@ func spawn_particle(x, y, z, gen = 1):
 	p.set_target(target)
 	p.set_material(material)
 	p.set_collision_layer(particle_layer_offset + 2)
-	p.brain = brain # might need some kind of instancing thing here
-	p.spawn_brain = spawn_brain
+	p.brain = brain.duplicate() # might need some kind of instancing thing here
+	p.spawn_brain = spawn_brain.duplicate()
 	p.parent = self
 	p.translate(Vector3(x, y, z))
 	p.gen = gen
@@ -101,4 +113,6 @@ func spawn_particle(x, y, z, gen = 1):
 func queue_free():
 	for p in particles:
 		p.queue_free()
+		
+
 

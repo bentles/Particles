@@ -21,13 +21,14 @@ resource_local_to_scene = true
 shader = SubResource( 18 )
 
 [node name="Particle" type="RigidBody" groups=["Particle"]]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0 )
 collision_layer = 0
-mass = 100.0
+mass = 102.041
 physics_material_override = SubResource( 14 )
 linear_damp = 0.1
 angular_damp = 0.3
 script = ExtResource( 1 )
-fmass = 20.0
+fmass = 19.0
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 0.5, 0, 0, 0, -2.18557e-08, 0.5, 0, -0.5, -2.18557e-08, 0, 0, 0 )
