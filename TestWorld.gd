@@ -8,15 +8,15 @@ extends Spatial
 const NeuralNetwork = preload("res://Neural Network/Brain.gd")
 const Organism = preload("res://Organism/Organism.tscn")
 
-const TEST_TIME = 8 # secs to prove yourself
+const TEST_TIME = 10 # secs to prove yourself
 var test_time_elapsed = 0
 var max_fitness = 0
 var max_fitness_brain
 var max_fitness_spawn_brain
 var ave_fitness = 0
 var tourn_perc = 0.4
-var parallel_organisms = 5
-var tests = 5
+var parallel_organisms = 4
+var tests = 1
 var test = 0
 
 var generation = 0
@@ -126,6 +126,7 @@ func _process(delta):
 		text += "\n  total fitness: " + str(org.total_fitness)
 		text += "\n  hp:" + str(org.hp)
 		text += "\n  brain:" + str(org.brain)
+		text += "\n  output:" + str(org.particles[0].shared_thoughts[0])
 	text += "\nmax_fitness: " + str(max_fitness)
 	text += "\nave_fitness: " + str(ave_fitness)
 	text += "\ntime: " + str(test_time_elapsed)
@@ -179,10 +180,10 @@ func create_next_generation():
 		
 		var b1 = tourn_select().brain.duplicate()
 		var b2 = tourn_select().brain.duplicate()
-		b1.mutate()
-		b2.mutate()
+		#b1.mutate()
+		#b2.mutate()
 		
-		# b1.crossover_mutate(b2)
+		b1.crossover_mutate(b2)
 		var new1 = Organism.instance().duplicate()
 		var new2 = Organism.instance().duplicate()
 		

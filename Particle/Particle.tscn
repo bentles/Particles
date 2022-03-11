@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Particle/Particle.gd" type="Script" id=1]
 [ext_resource path="res://Particle/truncated octahedron.obj" type="ArrayMesh" id=2]
@@ -14,11 +14,10 @@ points = PoolVector3Array( -1, -0.333333, 0, -1, 0.333333, 0, -0.666666, -0.6666
 resource_local_to_scene = true
 
 [sub_resource type="SpatialMaterial" id=22]
+resource_local_to_scene = true
+albedo_color = Color( 0.109804, 0.392157, 0.0784314, 1 )
 
-[sub_resource type="Shader" id=18]
-
-[sub_resource type="ShaderMaterial" id=13]
-shader = SubResource( 18 )
+[sub_resource type="ShaderMaterial" id=23]
 
 [node name="Particle" type="RigidBody" groups=["Particle"]]
 transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0 )
@@ -28,7 +27,7 @@ physics_material_override = SubResource( 14 )
 linear_damp = 0.1
 angular_damp = 0.3
 script = ExtResource( 1 )
-fmass = 19.0
+fmass = 20.0
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 0.5, 0, 0, 0, -2.18557e-08, 0.5, 0, -0.5, -2.18557e-08, 0, 0, 0 )
@@ -47,5 +46,5 @@ shape = SubResource( 20 )
 transform = Transform( 0.477966, -6.41661e-09, -0.146795, -0.139211, 0.158636, -0.453272, 0.0465739, 0.474167, 0.151645, 0, 0, 0 )
 material_override = SubResource( 22 )
 amount = 1
-process_material = SubResource( 13 )
+process_material = SubResource( 23 )
 draw_pass_1 = ExtResource( 2 )
