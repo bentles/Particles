@@ -4,6 +4,8 @@ extends RigidBody
 var vel3 = Vector3.ZERO
 export var fmass = 3.5
 export var is_dead = false
+var hp = 50
+var max_hp = 100 
 var age = 0
 var gen = 1
 var target: Spatial
@@ -32,6 +34,10 @@ const NeuralNetwork = preload("res://Neural Network/Brain.gd")
 var brain: NeuralNetwork
 var spawn_brain: NeuralNetwork
 var parent
+var material: SpatialMaterial
+
+func _init():
+	pass
 
 func _ready():
 	assert(brain != null)
@@ -42,10 +48,11 @@ func get_size() -> float:
 	var a = $CollisionShape
 	return $CollisionShape.scale.x
 
-func set_material(material):
-	var a = $Particles.draw_pass_1
-	#$Particles.draw_pass_1.material = material
-	
+func set_material():
+	var color = lerp(Color.red, Color.green, hp/max_hp)
+	$Particles.material_override.albedo_color = color
+
+
 func set_target(t: Spatial):
 	target = t
 	
@@ -100,15 +107,23 @@ func _physics_process(delta):
 		return
 
 	_process_state(delta)
+	
+	
+	
+	var a = $Particles.draw_pass_1
 
 	var overlapping = $InfluenceArea.get_overlapping_bodies()
 	var g = 5.0
 	
 	var totalInstAcc = Vector3.ZERO
 	var totalActivation = Vector3.ZERO
-	var direction = Vector3.ZERO
+	var length = target.global_transform.origin.distance_squared_to(self.global_transform.origin)
+	
+	var relative_distance = 0
+	var total_distance = 0
 	
 	var shared_thoughts_input = [0,0,0]
+	
 	for body in overlapping:
 		if body != self:
 			#get shared thoughts
@@ -122,8 +137,7 @@ func _physics_process(delta):
 			var distance_offset = 2 * original_size - get_size() - body.get_size()
 			var distance = self.global_transform.origin.distance_to(body3)
 			
-			direction = target.global_transform.origin - self.global_transform.origin
-			
+			total_distance += target.global_transform.origin.distance_squared_to(body.global_transform.origin)
 			
 			# enforce 0.5^2 as the closest 2 particles can be
 			var rsq = max(0.25, pow(distance + distance_offset, 2))
@@ -135,17 +149,25 @@ func _physics_process(delta):
 			var act3 = r3.normalized()
 			act3 = act3 * body.state
 			totalActivation += act3
+			
+	if (overlapping.size() - 1 > 0):
+		var aveLength = total_distance/(overlapping.size() - 1)
+		relative_distance = length - aveLength
+		if relative_distance < 0:
+			pass
 
 	self.add_central_force(totalInstAcc)
 	
 	think(
 	[   state,
-		shared_thoughts_input[0], shared_thoughts_input[1], shared_thoughts_input[2],
-		direction.x, direction.y, direction.z,
-		totalInstAcc.x, totalInstAcc.y, totalInstAcc.z, 
+		#share info but don't  create infinite loops
+		shared_thoughts_input[0] / 20, shared_thoughts_input[1]/20, shared_thoughts_input[2]/20,
+		relative_distance,
+		totalInstAcc.length(),
+		totalActivation
 		 ], 
 	[   state,
-		direction.x, direction.y, direction.z,
+		0,0,0,
 		age, parent.hp, gen ],
 	delta)
 
@@ -179,6 +201,7 @@ func kill():
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	set_material()
 	pass
 
 
