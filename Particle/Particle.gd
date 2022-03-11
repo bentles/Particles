@@ -11,12 +11,15 @@ var gen = 1
 var target: Spatial
 
 # action timers and state:
+var spawn_cost = 20
 var spawn_time = 0
 const spawn_cooldown = 0.5
 const cooldown_seconds = 0.13
 var cooldown_elapsed_seconds = 0
 const action_seconds = 0.13
 var action_elapsed_seconds = action_seconds
+
+signal spawn_particle()
 
 const think_seconds = 0.1
 var think_elapsed_seconds = think_seconds
@@ -43,6 +46,8 @@ func _ready():
 	assert(brain != null)
 	assert(spawn_brain != null)
 	randomize()
+	if gen > 1:
+		hp = spawn_cost
 
 func get_size() -> float:
 	var a = $CollisionShape
@@ -108,8 +113,6 @@ func _physics_process(delta):
 
 	_process_state(delta)
 	
-	
-	
 	var a = $Particles.draw_pass_1
 
 	var overlapping = $InfluenceArea.get_overlapping_bodies()
@@ -160,15 +163,15 @@ func _physics_process(delta):
 	
 	think(
 	[   state,
+		relative_distance,
+		totalActivation.length(),
 		#share info but don't  create infinite loops
 		shared_thoughts_input[0] / 20, shared_thoughts_input[1]/20, shared_thoughts_input[2]/20,
-		relative_distance,
-		totalInstAcc.length(),
-		totalActivation
 		 ], 
 	[   state,
-		0,0,0,
-		age, parent.hp, gen ],
+		relative_distance,
+		totalActivation.length(),
+		age, hp, gen ],
 	delta)
 
 #decide what action to perform (expand, contract or nothing)
@@ -189,12 +192,13 @@ func think(inputs: Array, sb_inputs: Array, delta: float):
 		var spawn_outputs = spawn_brain.predict(sb_inputs)
 		
 		# spawn new particle if this fires
-		#if spawn_outputs[0] > 0.75 && spawn_time > spawn_cooldown:
-		#	parent.spawn_at_child(self, 
-		#	(spawn_outputs[1] - 0.5) / 3,
-		#	(spawn_outputs[2] - 0.5) / 3,
-		#	(spawn_outputs[3] - 0.5) / 3, gen + 1)
-		#	spawn_time = 0
+		if spawn_outputs[0] > 0.75 && spawn_time > spawn_cooldown && hp - spawn_cost > 0:
+			hp -= spawn_cost
+			parent.spawn_at_child(self, 
+			(spawn_outputs[1] - 0.5) / 10,
+			(spawn_outputs[2] - 0.5) / 10,
+			(spawn_outputs[3] - 0.5) / 10, gen + 1)
+			spawn_time = 0
 			
 func kill():
 	is_dead = true

@@ -15,7 +15,7 @@ var max_fitness_brain
 var max_fitness_spawn_brain
 var ave_fitness = 0
 var tourn_perc = 0.4
-var parallel_organisms = 4
+var parallel_organisms = 1
 var tests = 1
 var test = 0
 
@@ -95,12 +95,7 @@ func _test_round_ended():
 	return _batch_dead() || test_time_elapsed >= TEST_TIME
 		
 func _batch_dead():
-	var all_dead = true
-	for o in current_organisms:
-		if o.hp > 0:
-			all_dead = false
-			break
-	return all_dead
+	return false
 
 func _spawn_next_batch():
 	for current_organism in current_organisms:
@@ -124,7 +119,7 @@ func _process(delta):
 	for org in current_organisms:
 		text += "\norganism: " + str(org)
 		text += "\n  total fitness: " + str(org.total_fitness)
-		text += "\n  hp:" + str(org.hp)
+		text += "\n  hp:" + str(org.particles.size())
 		text += "\n  brain:" + str(org.brain)
 		text += "\n  output:" + str(org.particles[0].shared_thoughts[0])
 	text += "\nmax_fitness: " + str(max_fitness)
