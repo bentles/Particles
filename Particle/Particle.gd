@@ -4,15 +4,16 @@ extends RigidBody
 var vel3 = Vector3.ZERO
 export var fmass = 3.5
 export var is_dead = false
-var hp = 50
-var max_hp = 100 
+var hp = 50.0
+var max_hp = 50.0
 var age = 0
 var gen = 1
 var target: Spatial
 
 # action timers and state:
+var spawn_cost = 30
 var spawn_time = 0
-const spawn_cooldown = 0.5
+const spawn_cooldown = 0.2
 const cooldown_seconds = 0.13
 var cooldown_elapsed_seconds = 0
 const action_seconds = 0.13
@@ -24,6 +25,7 @@ var think_elapsed_seconds = think_seconds
 var shared_thoughts = [0,0,0]
 
 var original_size = 0.5
+var on_ground = false
 const size_factor = 0.3
 
 const State = { STATE_IDLE = 0, STATE_EXPANDING = 3, STATE_CONTRACTING = 6, STATE_EXPANDED = 9 }
@@ -43,13 +45,17 @@ func _ready():
 	assert(brain != null)
 	assert(spawn_brain != null)
 	randomize()
+	if gen > 1:
+		hp = spawn_cost
+	set_material()
 
 func get_size() -> float:
 	var a = $CollisionShape
 	return $CollisionShape.scale.x
 
 func set_material():
-	var color = lerp(Color.red, Color.green, hp/max_hp)
+	var ratio = hp/max_hp
+	var color = lerp(Color.gray, Color.darkgreen, ratio)
 	$Particles.material_override.albedo_color = color
 
 
@@ -78,6 +84,10 @@ func _expand():
 
 func _contract():
 	_act(State.STATE_EXPANDED, State.STATE_CONTRACTING)
+
+func _jump():
+	if (on_ground):
+		apply_central_impulse(Vector3(0, 900, 0))
 	
 func _act(from_state, to_state):
 	if state == from_state && cooldown_elapsed_seconds >= cooldown_seconds:
@@ -107,8 +117,6 @@ func _physics_process(delta):
 		return
 
 	_process_state(delta)
-	
-	
 	
 	var a = $Particles.draw_pass_1
 
@@ -160,15 +168,15 @@ func _physics_process(delta):
 	
 	think(
 	[   state,
+		relative_distance,
+		totalActivation.length(),
 		#share info but don't  create infinite loops
 		shared_thoughts_input[0] / 20, shared_thoughts_input[1]/20, shared_thoughts_input[2]/20,
-		relative_distance,
-		totalInstAcc.length(),
-		totalActivation
 		 ], 
 	[   state,
-		0,0,0,
-		age, parent.hp, gen ],
+		relative_distance,
+		totalActivation.length(),
+		age, hp, gen ],
 	delta)
 
 #decide what action to perform (expand, contract or nothing)
@@ -183,25 +191,43 @@ func think(inputs: Array, sb_inputs: Array, delta: float):
 			_expand()
 		if outputs[0] < 0.25:
 			_contract()
+		if outputs[1] > 0.75:
+			_jump()
 			
-		shared_thoughts = outputs.slice(1, 3, 1, true)
+		shared_thoughts = outputs.slice(2, 4, 1, true)
 			
 		var spawn_outputs = spawn_brain.predict(sb_inputs)
 		
 		# spawn new particle if this fires
-		#if spawn_outputs[0] > 0.75 && spawn_time > spawn_cooldown:
-		#	parent.spawn_at_child(self, 
-		#	(spawn_outputs[1] - 0.5) / 3,
-		#	(spawn_outputs[2] - 0.5) / 3,
-		#	(spawn_outputs[3] - 0.5) / 3, gen + 1)
-		#	spawn_time = 0
+		if spawn_outputs[0] > 0.75 && spawn_time > spawn_cooldown && hp - spawn_cost > 0:
+			deduct_hp(spawn_cost)
+			parent.spawn_at_child(self, 
+			(spawn_outputs[1] - 0.5) / 10,
+			(spawn_outputs[2] - 0.5) / 10,
+			(spawn_outputs[3] - 0.5) / 10, gen + 1)
+			spawn_time = 0
 			
+func deduct_hp(amount: float):
+	hp -= amount
+	set_material()
+
 func kill():
 	is_dead = true
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	set_material()
+
 	pass
 
 
+
+
+func _on_Particle_body_entered(body):
+	if(body.get_name() == "Platform"):
+		on_ground = true
+	
+
+
+func _on_Particle_body_exited(body):
+	if(body.get_name() == "Platform"):
+		on_ground = false
