@@ -53,4 +53,3 @@ draw_pass_1 = ExtResource( 2 )
 
 [connection signal="body_entered" from="." to="." method="_on_Particle_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Particle_body_exited"]
-[connection signal="area_entered" from="InfluenceArea" to="." method="_on_InfluenceArea_area_entered"]

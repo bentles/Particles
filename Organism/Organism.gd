@@ -18,12 +18,6 @@ var age = 0
 func _init():
 	material = SpatialMaterial.new()
 	material.set_local_to_scene(true)
-	var texture = ImageTexture.new()
-	var image = Image.new()
-	image.load("res://Particle/6056-normal.jpg")
-	texture.create_from_image(image)
-
-	material.albedo_texture = texture
 	
 	if brain == null:
 		brain = NeuralNetwork.new(2, 8, 5)
@@ -61,9 +55,6 @@ func calc_fitness():
 
 func set_particle_layer_offset(i):
 	particle_layer_offset = i
-	var colors = [Color.cadetblue, Color.webpurple, Color.tomato, Color.crimson, Color.darkred, Color.darkgreen]
-	var color: Color = colors[particle_layer_offset % colors.size()]
-	material.albedo_color = color
 
 func _create_particles():
 	particles = []
