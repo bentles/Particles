@@ -11,7 +11,7 @@ var bias_h: Matrix
 var bias_o: Matrix
 
 var learning_rate = 1
-var mutation_rate = 0.08
+var mutation_rate = 0.04
 
 var sigmoid_ref: FuncRef
 var relu_ref: FuncRef

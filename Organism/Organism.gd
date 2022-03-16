@@ -26,7 +26,7 @@ func _init():
 	material.albedo_texture = texture
 	
 	if brain == null:
-		brain = NeuralNetwork.new(2, 8, 4)
+		brain = NeuralNetwork.new(2, 8, 5)
 	if spawn_brain == null:
 		spawn_brain = NeuralNetwork.new(6, 6, 4)
 		
@@ -69,7 +69,7 @@ func _create_particles():
 	particles = []
 	for x in range(-1, 0):
 		for y in range(2, 3):
-			for z in range(-1, 1):
+			for z in range(-1, 2):
 				spawn_particle(x, y, z)
 
 func respawn():
