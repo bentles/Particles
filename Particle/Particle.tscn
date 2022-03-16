@@ -51,5 +51,9 @@ amount = 1
 process_material = SubResource( 23 )
 draw_pass_1 = ExtResource( 2 )
 
+[node name="RayCast" type="RayCast" parent="."]
+enabled = true
+cast_to = Vector3( 10, 10, 0 )
+
 [connection signal="body_entered" from="." to="." method="_on_Particle_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Particle_body_exited"]

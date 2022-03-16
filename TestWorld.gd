@@ -15,7 +15,7 @@ var max_fitness_brain
 var max_fitness_spawn_brain
 var ave_fitness = 0
 var tourn_perc = 0.4
-var parallel_organisms = 2
+var parallel_organisms = 1
 var tests = 2
 var test = 0
 
